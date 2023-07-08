@@ -65,6 +65,7 @@ class NPCBalancing {
     }
 
     public getQuestDuration(npc: NPC, quest: Quest) {
+        // return 3;
         const role = npc.role;
         const map = this._tables.get(role);
         if (map) {

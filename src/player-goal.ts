@@ -1,5 +1,5 @@
 import { QuestItemType, QuestItemTypeArray, QuestStatus } from "./core/enums";
-import { IngameTime } from "./core/game-time";
+import { GameTime, IngameTime } from "./core/game-time";
 import { Logic } from "./core/logic";
 import QuestItem from "./quest-item";
 import { Chance } from "chance";
@@ -24,11 +24,11 @@ export default class PlayerGoal {
     }
 
     public get timeLeftInDays() {
-        return this.deadline === null ? Infinity : Math.floor(this.timeLeft / 24)
+        return this.deadline === null ? Infinity : GameTime.durationInDays(this.timeLeft)
     }
 
     public get timeLeftInHours() {
-        return this.deadline === null ? Infinity : Math.floor(this.timeLeft % 24)
+        return this.deadline === null ? Infinity : GameTime.durationInHours(this.timeLeft)
     }
 
     public get status() {

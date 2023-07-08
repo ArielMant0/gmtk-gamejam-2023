@@ -1,5 +1,5 @@
 import { MeshBuilder, Mesh, Scene, Vector3 } from "@babylonjs/core";
-import { NPCRole, NPCRoleArray, npcRoleToString } from "./core/enums";
+import { NPCRole, NPCRoleArray, QuestStatus, npcRoleToString } from "./core/enums";
 import { AdvancedDynamicTexture, TextBlock } from "@babylonjs/gui";
 import Chance from 'chance';
 import { GameTime, IngameTime } from "./core/game-time";
@@ -9,16 +9,19 @@ import QuestItem from "./quest-item";
 import Quest from "./quest";
 import { Logic } from "./core/logic";
 import { NPCB } from "./core/npc-balancing";
+import QuestLog from "./quest-log";
 
 const chance = new Chance();
 
-export default class NPCFactory {
+export default class NPCManager {
 
     private _npcInQueue: Array<NPC> = [];
     private _npcInProgress: Array<NPC> = [];
     private _npcMeshes: Array<Mesh> = [];
 
     private _maxQueueSize = 10;
+
+    private _questLog;
 
     private _ui;
     private _scene;
@@ -31,6 +34,7 @@ export default class NPCFactory {
         Events.on("quest:update", () => {
             if (this._npcInQueue.length > 0) {
                 this.activeNPC.recalculate(Logic.quest)
+                Logic.quest.calculateDuration(this.activeNPC)
                 this.updateQuest()
             }
         });
@@ -38,13 +42,14 @@ export default class NPCFactory {
         Events.on("quest:assign", () => {
             if (this._npcInQueue.length > 0) {
                 const npc = this.activeNPC;
-                if (this.assignQuest(Logic.quest.items, Logic.quest.rewards)) {
-                    this.checkQuest(npc.id);
+                if (this.assignQuest(Logic.quest)) {
+                    this._addToQuestLog(npc.id);
+                    // this._checkQuest(npc.id);
                 }
             }
         });
 
-        // Events.on("quest:complete", this.finishQuest.bind(this));
+        Events.on("quest:completed", (data: any) => this._onQuestFinish(data.id, data.result));
     }
 
     private get activeNPC() {
@@ -53,6 +58,7 @@ export default class NPCFactory {
 
     public addGUI(gui: AdvancedDynamicTexture) {
         this._ui = gui;
+        this._questLog = new QuestLog(gui, "Quest0", "QuestMainParent");
         this.updateAll();
     }
 
@@ -94,15 +100,17 @@ export default class NPCFactory {
         this._lastGen = IngameTime.getTime();
     }
 
-    public assignQuest(questItems: Array<QuestItem>, rewardItems: Array<QuestItem>) {
+    public assignQuest(quest: Quest) {
         if (this._npcInQueue.length > 0) {
             const npc = this._npcInQueue[0];
-            if (npc.assignQuest(new Quest(questItems, rewardItems))) {
+            const q = quest.clone();
+            if (npc.assignQuest(q)) {
                 this._npcInQueue.shift();
                 this._npcInProgress.push(npc);
                 const mesh = this._npcMeshes.shift();
                 mesh?.dispose();
                 this.updateAll();
+                q.start();
                 return true;
             } else {
                 this._npcInQueue.shift();
@@ -115,19 +123,23 @@ export default class NPCFactory {
         return false;
     }
 
-    public checkQuest(id: String) {
-        const npc = this._npcInProgress.find(d => d.id === id)
-        if (npc) {
-            if (npc.tryCompleteQuest()) {
-                // add quest resources
-                Events.emit("inventory:add", {
-                    questItem: npc.quest?.items[0],
-                    rewardItem: npc.quest?.rewards[0],
-                });
+    private _onQuestFinish(id: string, result: QuestStatus) {
+        const index = this._npcInProgress.findIndex(d => d.id === id)
+        if (index >= 0) {
+            if (result === QuestStatus.SUCCESS) {
                 console.log("quest SUCCESS")
             } else {
                 console.log("quest FAILURE")
             }
+            // remove this NPC
+            this._npcInProgress.splice(index, 1);
+        }
+    }
+
+    private _addToQuestLog(id: string) {
+        const npc = this._npcInProgress.find(d => d.id === id)
+        if (npc) {
+            this._questLog.addQuest(npc)
         }
     }
 
@@ -158,12 +170,15 @@ export default class NPCFactory {
         if (this._npcInQueue.length > 0) {
             const npc = this._npcInQueue[0];
 
-            const d = NPCB.getQuestDuration(npc, Logic.quest);
+            const d = Logic.quest.duration;
             const dur = this._ui.getControlByName("QuestDuration") as TextBlock
             dur.text = `Duration: ${GameTime.durationInDays(d).toFixed(0)} d ${GameTime.durationInHours(d).toFixed(0)} h`;
 
-            const rate = this._ui.getControlByName("QuestSuccess") as TextBlock
-            rate.text = `Rate of Success: ${npc.successProb.toFixed(0)}%`;
+            const acc = this._ui.getControlByName("QuestAcceptance") as TextBlock
+            acc.text = `Rate of Acceptance: ${npc.acceptProb.toFixed(0)}%`;
+
+            const succ = this._ui.getControlByName("QuestSuccess") as TextBlock
+            succ.text = `Rate of Success: ${npc.successProb.toFixed(0)}%`;
         }
     }
 

@@ -34,17 +34,17 @@ class GameTime {
             } else {
                 this.hour++;
             }
-            Events.emit("gametime:change", this.getTime())
+            Events.emit("gametime:update", this.getTime())
             this._duration = 0;
         }
     }
 
     static durationInDays(duration: number) {
-        return Math.round(duration / 24)
+        return Math.floor(duration / 24)
     }
 
     static durationInHours(duration: number) {
-        return Math.round(duration % 24)
+        return Math.floor(duration % 24)
     }
 }
 

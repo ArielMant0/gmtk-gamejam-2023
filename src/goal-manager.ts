@@ -4,7 +4,7 @@ import { Events } from "./core/events";
 import { IngameTime } from "./core/game-time";
 import { Logic } from "./core/logic";
 import PlayerGoal from "./player-goal";
-import { AdvancedDynamicTexture, TextBlock, Rectangle } from "@babylonjs/gui";
+import { AdvancedDynamicTexture, TextBlock, Rectangle, Button } from "@babylonjs/gui";
 
 const TARGET_NUM_GOALS = 3;
 const MIN_GENERATION_WAIT_TIME = 5;
@@ -25,7 +25,7 @@ export default class GoalManager {
         this._goals.push(PlayerGoal.createRandom());
         this._sort();
 
-        Events.on("gametime:change", (time: number) => {
+        Events.on("gametime:update", (time: number) => {
             this._checkGoals();
             this._sort();
             this.updateGUI()
@@ -50,28 +50,43 @@ export default class GoalManager {
 
     private _checkGoals() {
         const fail = {};
-        const success = {};
         this._goals.forEach((goal, i) => {
             if (goal.status === QuestStatus.FAILURE) {
                 fail[i] = true;
             }
-            if (goal.status === QuestStatus.SUCCESS) {
-                success[i] = true;
-            }
         })
 
-        Object.keys(success).forEach(index => {
-            Events.emit("goal:success", this._goals[index]);
-        });
-
-        if (Object.keys(fail).length > 0 || Object.keys(success).length > 0) {
-            this._goals = this._goals.filter((_, i) => !fail[i] && !success[i])
+        if (Object.keys(fail).length > 0) {
+            this._goals = this._goals.filter((_, i) => !fail[i])
             this._lastGenTime = IngameTime.getTime();
+        }
+    }
+
+    private _dismissGoal(index: number) {
+        if (index >= 0 && index < this._goals.length) {
+            this._goals.splice(index, 1)
+            this.updateGUI();
+        }
+    }
+
+    private _collectGoal(index: number) {
+        if (index >= 0 && index < this._goals.length) {
+            const goal = this._goals.splice(index, 1)[0];
+            Events.emit("goal:success", goal)
+            this.updateGUI();
         }
     }
 
     public addGUI(gui: AdvancedDynamicTexture) {
         this._ui = gui;
+
+        for (let i = 0; i < TARGET_NUM_GOALS; ++i) {
+            const cancel =  this._ui.getControlByName("GoalCancel"+i) as Button
+            cancel.onPointerClickObservable.add(() => this._dismissGoal(i))
+
+            const collect =  this._ui.getControlByName("GoalCollect"+i) as Button
+            collect.onPointerClickObservable.add(() => this._collectGoal(i))
+        }
         this.updateGUI();
     }
 
@@ -85,11 +100,19 @@ export default class GoalManager {
 
                 const goal = this._goals[index];
                 const goalItem = goal.items[0];
+                const goalReward = goal.rewards[0];
+
                 const item = this._ui.getControlByName("GoalItem"+index) as TextBlock
                 item.text = `${Logic.getItemAmount(goalItem.item as QuestItemType)} / ${goalItem.amount} ${goalItem.toItemString()}`
 
+                const reward = this._ui.getControlByName("GoalReward"+index) as TextBlock
+                reward.text = `Reward: ${goalReward.amount} ${goalReward.toItemString()}`
+
                 const time = this._ui.getControlByName("GoalTimeLeft"+index) as TextBlock
                 time.text = goal.deadline === null ? "Time Left: unlimited" : `Time Left: ${goal.timeLeftInDays} d ${goal.timeLeftInHours} h`
+
+                const collect =  this._ui.getControlByName("GoalCollect"+index) as Button
+                collect.isEnabled = goal.status === QuestStatus.SUCCESS;
             } else {
                 const rect = this._ui.getControlByName("Goal"+index) as Rectangle
                 rect.isVisible = false;

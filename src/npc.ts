@@ -24,6 +24,10 @@ export default class NPC {
         this.level = Math.max(1, Math.round(level));
     }
 
+    public get questTimeLeft() {
+        return this.quest === null ? Number.MAX_SAFE_INTEGER : this.quest.timeLeft;
+    }
+
     public assignQuest(quest: Quest) {
         // calculate probabilites
         this.recalculate(quest);

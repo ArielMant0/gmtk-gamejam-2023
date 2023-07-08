@@ -3,6 +3,7 @@ import { QuestItemType, QuestItemTypeArray, questItemTypeToString } from "./core
 import { Events } from "./core/events";
 import { Logic } from "./core/logic";
 import PlayerGoal from "./player-goal";
+import QuestItem from "./quest-item";
 
 export default class Inventory {
 
@@ -10,14 +11,15 @@ export default class Inventory {
     private _money;
 
     constructor() {
-        Events.on("inventory:add", (data: any) => {
-            Logic.addToItemAmount(data.questItem.item, data.questItem.amount)
-            this.updateItem(data.questItem.item)
-            if (data.rewardItem && data.rewardItem.item === QuestItemType.MONEY) {
-                Logic.addMoney(-data.rewardItem.amount)
-                this.updateMoney();
-            }
-        })
+        Events.on("inventory:add", (item: QuestItem) => {
+            Logic.addToItemAmount(item.item as QuestItemType, item.amount)
+            this.updateItem(item.item as QuestItemType)
+        });
+
+        Events.on("inventory:remove", (item: QuestItem) => {
+            Logic.addToItemAmount(item.item as QuestItemType, -item.amount)
+            this.updateItem(item.item as QuestItemType)
+        });
 
         Events.on("goal:success", (goal: PlayerGoal) => {
             const itemTypeQ = goal.items[0].item as QuestItemType;

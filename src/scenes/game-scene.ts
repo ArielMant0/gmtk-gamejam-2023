@@ -3,12 +3,11 @@ import { AdvancedDynamicTexture, Button } from "@babylonjs/gui";
 import BaseScene from "../core/base-scene";
 import { Events } from "../core/events";
 import { Player } from "../player";
-import { Environment } from "../environment";
 import { GameState } from "../core/enums";
 import InputControls from "../input-controls";
 import QuestBuilder from "../quest-builder";
 import Inventory from "../inventory";
-import NPCFactory from "../npc-factory";
+import NPCManager from "../npc-manager";
 import { IngameTime } from "../core/game-time";
 import GoalManager from "../goal-manager";
 
@@ -81,7 +80,7 @@ export default class GameScene extends BaseScene {
         this._goalManager = new GoalManager();
         this._goalManager.addGUI(ui);
 
-        this._npcFactory = new NPCFactory();
+        this._npcFactory = new NPCManager();
         this._npcFactory.addGUI(ui);
         this._npcFactory.start(this.scene);
 

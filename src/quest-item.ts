@@ -22,6 +22,10 @@ export default class QuestItem {
         this.item = item;
     }
 
+    public toString() {
+        return "" + this.amount + " " + questItemTypeToString(this.item, this.amount)
+    }
+
     public toItemString() {
         return questItemTypeToString(this.item, this.amount)
     }
