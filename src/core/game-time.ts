@@ -25,7 +25,7 @@ class GameTime {
     }
 
     public update() {
-        // TODO: random
+        // TODO: why is this 0.33
         this._duration += this._scene.deltaTime * 0.33;
         if (this._duration >= this._hInMS) {
             if (this.hour === 23) {
@@ -38,6 +38,16 @@ class GameTime {
             this._duration = 0;
         }
     }
+
+    static durationInDays(duration: number) {
+        return Math.round(duration / 24)
+    }
+
+    static durationInHours(duration: number) {
+        return Math.round(duration % 24)
+    }
 }
 
-export const IngameTime = new GameTime();
+const IngameTime = new GameTime();
+
+export { IngameTime, GameTime }

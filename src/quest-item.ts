@@ -10,6 +10,10 @@ export default class QuestItem {
         this.amount = Math.max(0, Math.round(amount));
     }
 
+    public clone() {
+        return new QuestItem(this.item, this.amount);
+    }
+
     public setAmount(amount: number) {
         this.amount = Math.max(0, Math.round(amount));
     }

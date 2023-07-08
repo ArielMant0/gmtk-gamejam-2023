@@ -39,11 +39,13 @@ export default class QuestBuilder {
 
     public setQuestAmount(amount: number | string) {
         this.questItem.setAmount(this._validateNumber(amount));
+        Logic.setQuest(this.questItem, this.rewardItem);
         this.updateGUI();
     }
 
     public setQuestItemType(item: QuestItemType) {
         this.questItem.setItem(item);
+        Logic.setQuest(this.questItem, this.rewardItem);
         this.updateGUI();
     }
 
@@ -52,16 +54,19 @@ export default class QuestBuilder {
         this.questItem.setAmount(1);
         this.rewardItem.setItem(QuestItemType.MONEY);
         this.rewardItem.setAmount(100);
+        Logic.setQuest(this.questItem, this.rewardItem);
         this.updateGUI();
     }
 
     public setRewardAmount(amount: number | string) {
         this.rewardItem.setAmount(this._validateNumber(amount));
+        Logic.setQuest(this.questItem, this.rewardItem);
         this.updateGUI();
     }
 
     public setRewardItem(item: QuestItemType) {
         this.rewardItem.setItem(item);
+        Logic.setQuest(this.questItem, this.rewardItem);
         this.updateGUI();
     }
 
@@ -102,10 +107,10 @@ export default class QuestBuilder {
         const okay = gui.getControlByName("Confirm") as Button
         okay.onPointerClickObservable.add(() => {
             if (this.questItem.item !== null && Logic.checkMoney(this.rewardItem.amount)) {
-                Events.emit("inventory:add", {
-                    questItem: this.questItem,
-                    rewardItem: this.rewardItem
-                })
+                // Events.emit("inventory:add", {
+                //     questItem: this.questItem,
+                //     rewardItem: this.rewardItem
+                // })
                 Events.emit("quest:assign", {
                     questItem: this.questItem,
                     rewardItem: this.rewardItem,

@@ -1,14 +1,19 @@
+import Quest from "../quest";
+import QuestItem from "../quest-item";
 import { QuestItemType, QuestItemTypeArray } from "./enums";
+import { Events } from "./events";
 
 class GameLogic {
 
+    public quest: Quest;
     public inventory = new Map<QuestItemType, number>();
 
     constructor(money: number = 1000) {
         QuestItemTypeArray.forEach(nr => {
             this.inventory.set(QuestItemType[nr], 0);
         });
-        this.inventory.set(QuestItemType.MONEY, money)
+        this.inventory.set(QuestItemType.MONEY, money);
+        this.quest = new Quest([], []);
     }
 
     public get money() {
@@ -45,6 +50,12 @@ class GameLogic {
 
     public setItemAmount(item: QuestItemType, amount: number) {
         this.inventory.set(item, amount)
+    }
+
+    public setQuest(item: QuestItem, reward: QuestItem) {
+        this.quest.items = [item.clone()];
+        this.quest.rewards = [reward.clone()]
+        Events.emit("quest:update", this.quest)
     }
 }
 

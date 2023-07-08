@@ -2,11 +2,13 @@ import { MeshBuilder, Mesh, Scene, Vector3 } from "@babylonjs/core";
 import { NPCRole, NPCRoleArray, npcRoleToString } from "./core/enums";
 import { AdvancedDynamicTexture, TextBlock } from "@babylonjs/gui";
 import Chance from 'chance';
-import { IngameTime } from "./core/game-time";
+import { GameTime, IngameTime } from "./core/game-time";
 import NPC from "./npc";
 import { Events } from "./core/events";
 import QuestItem from "./quest-item";
 import Quest from "./quest";
+import { Logic } from "./core/logic";
+import { NPCB } from "./core/npc-balancing";
 
 const chance = new Chance();
 
@@ -25,13 +27,28 @@ export default class NPCFactory {
 
     constructor() {
         this._makeNPC();
-        Events.on("quest:assign", (data: any) => {
-            this.assignQuest(
-                [new QuestItem(data.questItem, data.questAmount)],
-                [new QuestItem(data.rewardItem, data.rewardAmount)]
-            );
+
+        Events.on("quest:update", () => {
+            if (this._npcInQueue.length > 0) {
+                this.activeNPC.recalculate(Logic.quest)
+                this.updateQuest()
+            }
         });
-        Events.on("quest:complete", this.finishQuest.bind(this));
+
+        Events.on("quest:assign", () => {
+            if (this._npcInQueue.length > 0) {
+                const npc = this.activeNPC;
+                if (this.assignQuest(Logic.quest.items, Logic.quest.rewards)) {
+                    this.checkQuest(npc.id);
+                }
+            }
+        });
+
+        // Events.on("quest:complete", this.finishQuest.bind(this));
+    }
+
+    private get activeNPC() {
+        return this._npcInQueue[0]
     }
 
     public addGUI(gui: AdvancedDynamicTexture) {
@@ -79,17 +96,39 @@ export default class NPCFactory {
 
     public assignQuest(questItems: Array<QuestItem>, rewardItems: Array<QuestItem>) {
         if (this._npcInQueue.length > 0) {
-            const npc = this._npcInQueue.shift() as NPC;
-            npc.assignQuest(new Quest(questItems, rewardItems));
-            this._npcInProgress.push(npc);
-            const mesh = this._npcMeshes.shift();
-            mesh?.dispose();
-            this.updateAll();
+            const npc = this._npcInQueue[0];
+            if (npc.assignQuest(new Quest(questItems, rewardItems))) {
+                this._npcInQueue.shift();
+                this._npcInProgress.push(npc);
+                const mesh = this._npcMeshes.shift();
+                mesh?.dispose();
+                this.updateAll();
+                return true;
+            } else {
+                this._npcInQueue.shift();
+                const mesh = this._npcMeshes.shift();
+                mesh?.dispose();
+                this.updateAll();
+                return false;
+            }
         }
+        return false;
     }
 
-    public finishQuest(id: string) {
-
+    public checkQuest(id: String) {
+        const npc = this._npcInProgress.find(d => d.id === id)
+        if (npc) {
+            if (npc.tryCompleteQuest()) {
+                // add quest resources
+                Events.emit("inventory:add", {
+                    questItem: npc.quest?.items[0],
+                    rewardItem: npc.quest?.rewards[0],
+                });
+                console.log("quest SUCCESS")
+            } else {
+                console.log("quest FAILURE")
+            }
+        }
     }
 
     public moveNPCMeshes() {
@@ -117,11 +156,14 @@ export default class NPCFactory {
 
     public updateQuest() {
         if (this._npcInQueue.length > 0) {
+            const npc = this._npcInQueue[0];
+
+            const d = NPCB.getQuestDuration(npc, Logic.quest);
             const dur = this._ui.getControlByName("QuestDuration") as TextBlock
-            dur.text = `Expected Duration: ${1} Day`;
+            dur.text = `Duration: ${GameTime.durationInDays(d).toFixed(0)} d ${GameTime.durationInHours(d).toFixed(0)} h`;
 
             const rate = this._ui.getControlByName("QuestSuccess") as TextBlock
-            rate.text = `Expected Rate of Success: ${90}%`;
+            rate.text = `Rate of Success: ${npc.successProb.toFixed(0)}%`;
         }
     }
 
