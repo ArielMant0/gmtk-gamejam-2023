@@ -1,25 +1,25 @@
 import { AdvancedDynamicTexture, StackPanel, Rectangle, TextBlock, Control, Button } from "@babylonjs/gui";
-import { QuestItem, QuestItemArray, questItemToString } from "./core/enums";
+import { QuestItemType, QuestItemTypeArray, questItemTypeToString } from "./core/enums";
 import { Events } from "./core/events";
 import { Logic } from "./core/logic";
 
 export default class Inventory {
 
-    private _ui = new Map<QuestItem, TextBlock>();
+    private _ui = new Map<QuestItemType, TextBlock>();
     private _money;
 
     constructor() {
         Events.on("inventory:add", (data: any) => {
-            Logic.addToItemAmount(data.item, data.amount)
-            this.updateItem(data.item)
-            if (data.cost) {
-                Logic.addMoney(data.cost)
+            Logic.addToItemAmount(data.questItem.item, data.questItem.amount)
+            this.updateItem(data.questItem.item)
+            if (data.rewardItem && data.rewardItem.item === QuestItemType.MONEY) {
+                Logic.addMoney(-data.rewardItem.amount)
                 this.updateMoney();
             }
         })
     }
 
-    public updateItem(item: QuestItem) {
+    public updateItem(item: QuestItemType) {
         if (this._ui.has(item)) {
             // @ts-ignore
             this._ui.get(item).text = "" + Logic.getItemAmount(item);
@@ -27,7 +27,7 @@ export default class Inventory {
     }
 
     public updateMoney() {
-        this._money.text = "" + Logic.money + " " + questItemToString(QuestItem.MONEY, Logic.money);
+        this._money.text = "" + Logic.money + " " + questItemTypeToString(QuestItemType.MONEY, Logic.money);
     }
 
     public addGUI(gui: AdvancedDynamicTexture) {
@@ -44,9 +44,9 @@ export default class Inventory {
         stack.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
         stack.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
 
-        QuestItemArray.forEach(nr => {
-            const item = QuestItem[nr]
-            const name = questItemToString(item, 2);
+        QuestItemTypeArray.forEach(nr => {
+            const item = QuestItemType[nr]
+            const name = questItemTypeToString(item, 2);
 
             const r = new StackPanel()
             r.width = "100px";
@@ -74,7 +74,7 @@ export default class Inventory {
             stack.addControl(r);
        })
 
-       this._money = new TextBlock("Money", "" + Logic.money + " " + questItemToString(QuestItem.MONEY, Logic.money))
+       this._money = new TextBlock("Money", "" + Logic.money + " " + questItemTypeToString(QuestItemType.MONEY, Logic.money))
        this._money.color = "white";
        this._money.fontSize = "24px";
        this._money.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;

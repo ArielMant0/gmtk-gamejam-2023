@@ -36,7 +36,7 @@ export class Player extends TransformNode {
     }
 
     public reset() {
-        this.mesh.position = new Vector3(0, 0, 0);
+        this.mesh.position = new Vector3(0, -4, 0);
         this._cameraRoot.position = new Vector3(0, 0, 0);
     }
 
@@ -83,6 +83,8 @@ export class Player extends TransformNode {
             ActionManager.OnPickTrigger,
             this.scene.getSoundByName("bump") as Sound
         ))
+
+        this.reset();
     }
 
     public async addShadows(shadowGenerator: ShadowGenerator) {

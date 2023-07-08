@@ -1,28 +1,24 @@
-import { AdvancedDynamicTexture, StackPanel, Rectangle, TextBlock, InputText, Control, Button } from "@babylonjs/gui";
-import { QuestItem, questItemToString } from "./core/enums";
+import { AdvancedDynamicTexture, InputText, Button } from "@babylonjs/gui";
+import { QuestItemType, questItemTypeToString } from "./core/enums";
 import { Events } from "./core/events";
 import { Logic } from "./core/logic";
+import QuestItem from "./quest-item";
 
 export default class QuestBuilder {
 
-    public questAmount: number = 1;
-    public questItem: QuestItem | null;
+    public questItem: QuestItem;
+    public rewardItem: QuestItem;
 
     private _gui;
 
-    public rewardAmount: number = 100;
-    public rewardItem: QuestItem | null;
-
     private _selectItem = 0;
 
-    constructor(amountQ=1, itemQ=null, amountR=100, itemR=QuestItem.MONEY) {
-        this.questAmount = amountQ;
-        this.questItem = itemQ;
-        this.rewardAmount = amountR;
-        this.rewardItem = itemR;
-        Events.on("questbuilder:add", (item: QuestItem) => {
+    constructor(itemQ=null, amountQ=1, itemR=QuestItemType.MONEY, amountR=100) {
+        this.questItem = new QuestItem(itemQ, amountQ);
+        this.rewardItem = new QuestItem(itemR, amountR);
+        Events.on("questbuilder:add", (item: QuestItemType) => {
             if (this._selectItem === 1) {
-                this.setQuestItem(item)
+                this.setQuestItemType(item)
                 this._selectItem = 0;
             } else if (this._selectItem === 2) {
                 this.setRewardItem(item)
@@ -42,30 +38,30 @@ export default class QuestBuilder {
     }
 
     public setQuestAmount(amount: number | string) {
-        this.questAmount = this._validateNumber(amount);
+        this.questItem.setAmount(this._validateNumber(amount));
         this.updateGUI();
     }
 
-    public setQuestItem(item: QuestItem) {
-        this.questItem = item;
+    public setQuestItemType(item: QuestItemType) {
+        this.questItem.setItem(item);
         this.updateGUI();
     }
 
     public reset() {
-        this.questItem = null;
-        this.questAmount = 1;
-        this.rewardItem = QuestItem.MONEY;
-        this.rewardAmount = 100;
+        this.questItem.setItem(null);
+        this.questItem.setAmount(1);
+        this.rewardItem.setItem(QuestItemType.MONEY);
+        this.rewardItem.setAmount(100);
         this.updateGUI();
     }
 
     public setRewardAmount(amount: number | string) {
-        this.rewardAmount = this._validateNumber(amount);
+        this.rewardItem.setAmount(this._validateNumber(amount));
         this.updateGUI();
     }
 
-    public setRewardItem(item: QuestItem) {
-        this.rewardItem = item;
+    public setRewardItem(item: QuestItemType) {
+        this.rewardItem.setItem(item);
         this.updateGUI();
     }
 
@@ -75,41 +71,44 @@ export default class QuestBuilder {
 
         const amountQ = gui.getControlByName("QuestAmount") as InputText
         amountQ.autoStretchWidth = true;
-        amountQ.text = ""+this.questAmount;
+        amountQ.text = ""+this.questItem.amount;
         amountQ.onTextChangedObservable.add(() => {
             this.setQuestAmount(amountQ.text)
-            amountQ.text = ""+this.questAmount;
+            amountQ.text = ""+this.questItem.amount;
         });
 
         const buttonQ = gui.getControlByName("QuestItem") as Button
         buttonQ.adaptWidthToChildren = true;
         if (buttonQ.textBlock?.text) {
-            buttonQ.textBlock.text = questItemToString(this.questItem, this.questAmount);
+            buttonQ.textBlock.text = this.questItem.toItemString();
         }
         buttonQ.onPointerDownObservable.add(() => this._selectItem = 1);
 
         const amountR = gui.getControlByName("RewardAmount") as InputText
         amountR.autoStretchWidth = true;
-        amountR.text = ""+this.rewardAmount;
+        amountR.text = ""+this.rewardItem.amount;
         amountR.onTextChangedObservable.add(() => {
             this.setRewardAmount(amountR.text)
-            amountR.text = ""+this.rewardAmount;
+            amountR.text = ""+this.rewardItem.amount;
         });
 
         const buttonR = gui.getControlByName("RewardItem") as Button
         buttonR.adaptWidthToChildren = true;
         if (buttonR.textBlock?.text) {
-            buttonR.textBlock.text = questItemToString(this.rewardItem, this.rewardAmount);
+            buttonR.textBlock.text = this.rewardItem.toItemString();
         }
         buttonR.onPointerDownObservable.add(() => this._selectItem = 2);
 
         const okay = gui.getControlByName("Confirm") as Button
         okay.onPointerClickObservable.add(() => {
-            if (this.questItem !== null && Logic.checkMoney(this.rewardAmount)) {
+            if (this.questItem.item !== null && Logic.checkMoney(this.rewardItem.amount)) {
                 Events.emit("inventory:add", {
-                    item: this.questItem,
-                    amount: this.questAmount,
-                    cost: -this.rewardAmount
+                    questItem: this.questItem,
+                    rewardItem: this.rewardItem
+                })
+                Events.emit("quest:assign", {
+                    questItem: this.questItem,
+                    rewardItem: this.rewardItem,
                 })
                 this.reset();
             }
@@ -118,19 +117,19 @@ export default class QuestBuilder {
 
     public updateGUI() {
         const amountQ = this._gui.getControlByName("QuestAmount") as InputText
-        amountQ.text = ""+this.questAmount;
+        amountQ.text = ""+this.questItem.amount;
 
         const buttonQ = this._gui.getControlByName("QuestItem") as Button
         if (buttonQ.textBlock?.text) {
-            buttonQ.textBlock.text = questItemToString(this.questItem, this.questAmount);
+            buttonQ.textBlock.text = this.questItem.toItemString();
         }
 
         const amountR = this._gui.getControlByName("RewardAmount") as InputText
-        amountR.text = ""+this.rewardAmount;
+        amountR.text = ""+this.rewardItem.amount;
 
         const buttonR = this._gui.getControlByName("RewardItem") as Button
         if (buttonR.textBlock?.text) {
-            buttonR.textBlock.text = questItemToString(this.rewardItem, this.rewardAmount);
+            buttonR.textBlock.text = this.rewardItem.toItemString();
         }
     }
 

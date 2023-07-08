@@ -1,15 +1,22 @@
-import { QuestItem, QuestItemArray } from "./enums";
+import { QuestItemType, QuestItemTypeArray } from "./enums";
 
 class GameLogic {
 
-    public money: number;
-    public inventory = new Map<QuestItem, number>();
+    public inventory = new Map<QuestItemType, number>();
 
     constructor(money: number = 1000) {
-        this.money = money;
-        QuestItemArray.forEach(nr => {
-            this.inventory.set(QuestItem[nr], 0);
+        QuestItemTypeArray.forEach(nr => {
+            this.inventory.set(QuestItemType[nr], 0);
         });
+        this.inventory.set(QuestItemType.MONEY, money)
+    }
+
+    public get money() {
+        return this.inventory.get(QuestItemType.MONEY) || 0
+    }
+
+    public set money(value: number) {
+        this.inventory.set(QuestItemType.MONEY, value)
     }
 
     public checkMoney(value: number) {
@@ -17,11 +24,11 @@ class GameLogic {
     }
 
     public addMoney(value: number) {
-        this.money += value;
+        this.money = this.money + value;
         return this.money;
     }
 
-    public getItemAmount(item: QuestItem) {
+    public getItemAmount(item: QuestItemType) {
         if (this.inventory.has(item)) {
             return this.inventory.get(item) || 0
         }
@@ -29,14 +36,14 @@ class GameLogic {
         return 0;
     }
 
-    public addToItemAmount(item: QuestItem, amount: number) {
+    public addToItemAmount(item: QuestItemType, amount: number) {
         if (this.inventory.has(item)) {
             amount += this.inventory.get(item) || 0
         }
         this.setItemAmount(item, amount)
     }
 
-    public setItemAmount(item: QuestItem, amount: number) {
+    public setItemAmount(item: QuestItemType, amount: number) {
         this.inventory.set(item, amount)
     }
 }

@@ -7,7 +7,7 @@ enum GameState {
     WIN
 }
 
-enum QuestItem {
+enum QuestItemType {
     MONEY,
     MUSHROOM,
     APPLE,
@@ -19,29 +19,29 @@ enum QuestItem {
     HUNTING_TROPHY,
     MESSAGE
 }
-const QuestItemArray = Object.values(QuestItem).filter(d => typeof d === "string");
+const QuestItemTypeArray = Object.values(QuestItemType).filter(d => typeof d === "string");
 
-function questItemToString(item: QuestItem | null, amount: number = 1) {
+function questItemTypeToString(item: QuestItemType | null, amount: number = 1) {
     switch(item) {
-        case QuestItem.MONEY:
+        case QuestItemType.MONEY:
             return "Gold";
-        case QuestItem.MUSHROOM:
+        case QuestItemType.MUSHROOM:
             return amount > 1 ? "Mushrooms" : "Mushroom"
-        case QuestItem.APPLE:
+        case QuestItemType.APPLE:
             return amount > 1 ? "Apples" : "Apple"
-        case QuestItem.GEM:
+        case QuestItemType.GEM:
             return amount > 1 ? "Gems" : "Gem"
-        case QuestItem.MEAT:
+        case QuestItemType.MEAT:
             return "Meat"
-        case QuestItem.FUR:
+        case QuestItemType.FUR:
             return amount > 1 ? "Furs" : "Fur"
-        case QuestItem.HORSE:
+        case QuestItemType.HORSE:
             return amount > 1 ? "Horses" : "Horse"
-        case QuestItem.WEAPON:
+        case QuestItemType.WEAPON:
             return amount > 1 ? "Weapons" : "Weapon"
-        case QuestItem.HUNTING_TROPHY:
+        case QuestItemType.HUNTING_TROPHY:
             return amount > 1 ? "Dragon Teeth" : "Dragon Tooth"
-        case QuestItem.MESSAGE:
+        case QuestItemType.MESSAGE:
             return amount > 1 ? "Messages" : "Message"
         default:
             return "_ _ _ _ _ _";
@@ -68,6 +68,6 @@ function npcRoleToString(role: NPCRole) {
 
 export {
     GameState,
-    QuestItem, QuestItemArray, questItemToString,
+    QuestItemType, QuestItemTypeArray, questItemTypeToString,
     NPCRole, NPCRoleArray, npcRoleToString
 };

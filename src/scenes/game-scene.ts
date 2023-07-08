@@ -9,11 +9,11 @@ import InputControls from "../input-controls";
 import QuestBuilder from "../quest-builder";
 import Inventory from "../inventory";
 import NPCFactory from "../npc-factory";
+import { IngameTime } from "../core/game-time";
 
 export default class GameScene extends BaseScene {
 
     private _player;
-    private _environment;
 
     private _questBuiler;
     private _inventory;
@@ -30,6 +30,8 @@ export default class GameScene extends BaseScene {
         if (!this.scene) {
             throw new Error("missing scene object");
         }
+
+        IngameTime.start(this.scene);
 
         if (!this._input) {
             this.scene.actionManager = new ActionManager(this.scene);
@@ -76,13 +78,14 @@ export default class GameScene extends BaseScene {
 
         this._npcFactory = new NPCFactory();
         this._npcFactory.addGUI(ui);
+        this._npcFactory.start(this.scene);
 
         //primitive character and setting
         await this._initializeGameAsync();
     }
 
     public async load(force=false) {
-        if (!force && this._environment && this._player) {
+        if (!force && this._player) {
             console.debug("already loaded game scene assets")
 
             this._player.reset();
@@ -95,14 +98,10 @@ export default class GameScene extends BaseScene {
 
         // const assetsManager = new AssetsManager(this.scene);
 
-        this._environment = new Environment(this.scene);
         const sound = new Sound("bump", "/bump.mp3", this.scene)
         this._player = new Player(this.scene, this._input);
 
-        await Promise.all([
-            this._environment.load(),
-            this._player.load()
-        ]);
+        await this._player.load();
     }
 
     private async _initializeGameAsync() {
