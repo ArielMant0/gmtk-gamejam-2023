@@ -1,17 +1,17 @@
-import { MeshBuilder, Mesh, Scene, Vector3 } from "@babylonjs/core";
+import { MeshBuilder, Mesh, Scene, Vector3, StandardMaterial, Texture } from "@babylonjs/core";
 import { NPCRole, NPCRoleArray, QuestStatus, npcRoleToString } from "./core/enums";
-import { AdvancedDynamicTexture, TextBlock } from "@babylonjs/gui";
+import { AdvancedDynamicTexture, TextBlock, Image } from "@babylonjs/gui";
 import Chance from 'chance';
 import { GameTime, IngameTime } from "./core/game-time";
 import NPC from "./npc";
 import { Events } from "./core/events";
-import QuestItem from "./quest-item";
 import Quest from "./quest";
 import { Logic } from "./core/logic";
-import { NPCB } from "./core/npc-balancing";
 import QuestLog from "./quest-log";
 
 const chance = new Chance();
+const NPC_MIN_GEN_TIME = 10;
+const NPC_GEN_TIME_START = -5;
 
 export default class NPCManager {
 
@@ -26,11 +26,9 @@ export default class NPCManager {
     private _ui;
     private _scene;
 
-    private _lastGen: number = 0;
+    private _lastGen: number = NPC_GEN_TIME_START;
 
     constructor() {
-        this._makeNPC();
-
         Events.on("quest:update", () => {
             if (this._npcInQueue.length > 0) {
                 this.activeNPC.recalculate(Logic.quest)
@@ -44,12 +42,25 @@ export default class NPCManager {
                 const npc = this.activeNPC;
                 if (this.assignQuest(Logic.quest)) {
                     this._addToQuestLog(npc.id);
-                    // this._checkQuest(npc.id);
+                    Events.emit("npc:quest", true)
+                } else {
+                    Events.emit("npc:quest", false)
                 }
+                setTimeout(() => Events.emit("npc:leave", npc), 500);
             }
         });
 
         Events.on("quest:completed", (data: any) => this._onQuestFinish(data.id, data.result));
+
+        Events.on("npc:arrive", () => {
+            this._ui.getControlByName("NPCStats").isVisible = true;
+        })
+        Events.on("npc:leave", () => {
+            if (this._npcInQueue.length === 0) {
+                this._ui.getControlByName("NPCStats").isVisible = false;
+            }
+        })
+
     }
 
     private get activeNPC() {
@@ -65,7 +76,7 @@ export default class NPCManager {
     public start(scene: Scene) {
         this._scene = scene;
         scene.registerBeforeRender(() => {
-            if (IngameTime.getTime() - this._lastGen >= 3) {
+            if (IngameTime.getTime() - this._lastGen >= NPC_MIN_GEN_TIME) {
                 if (this._npcInQueue.length < this._maxQueueSize) {
                     this._makeNPC();
                 } else {
@@ -83,14 +94,19 @@ export default class NPCManager {
             NPCRole[chance.pickone(NPCRoleArray)],
             1
         );
+
         this._npcInQueue.push(npc);
         const plane = MeshBuilder.CreatePlane(
             npc.id,
             { width: 1, height: 1 },
             this._scene
         );
+        const mat = new StandardMaterial("");
+        mat.diffuseTexture = new Texture(npc.head);
         plane.billboardMode = Mesh.BILLBOARDMODE_ALL;
         plane.position.y += this._npcInQueue.length * 1.5;
+        plane.material = mat;
+
         this._npcMeshes.push(plane)
 
         if (this._ui) {
@@ -101,6 +117,9 @@ export default class NPCManager {
     }
 
     public assignQuest(quest: Quest) {
+
+        let result = false;
+
         if (this._npcInQueue.length > 0) {
             const npc = this._npcInQueue[0];
             const q = quest.clone();
@@ -111,16 +130,23 @@ export default class NPCManager {
                 mesh?.dispose();
                 this.updateAll();
                 q.start();
-                return true;
+                Events.emit("inventory:remove", q.rewards[0]);
+                result = true;
             } else {
                 this._npcInQueue.shift();
                 const mesh = this._npcMeshes.shift();
                 mesh?.dispose();
                 this.updateAll();
-                return false;
+                result = false;
+            }
+
+            if (this._npcInQueue.length > 0) {
+                const avatar = this._ui.getControlByName("NPCImage") as Image
+                avatar.source = this.activeNPC.head;
             }
         }
-        return false;
+
+        return result;
     }
 
     private _onQuestFinish(id: string, result: QuestStatus) {
@@ -145,16 +171,22 @@ export default class NPCManager {
 
     public moveNPCMeshes() {
         this._npcMeshes.forEach((mesh, index) => {
-            if (mesh.position.y !== index * 1.5) {
+            if (Math.abs(mesh.position.y - index * 1.5) > 0.001) {
                 const newpos = mesh.position.clone()
                 newpos.y = index * 1.5
-                mesh.position = Vector3.Lerp(mesh.position, newpos, 0.4);
+                mesh.position = Vector3.Lerp(mesh.position, newpos, 0.1);
+            } else if (index === 0) {
+                // TODO: only do this once
+                if (!Logic.npc) {
+                    Events.emit("npc:arrive", this.activeNPC);
+                }
             }
         });
     }
 
     public updateNPC() {
         if (this._npcInQueue.length > 0) {
+
             const name = this._ui.getControlByName("NPCName") as TextBlock
             name.text = this._npcInQueue[0].name;
 
@@ -163,22 +195,26 @@ export default class NPCManager {
 
             const role = this._ui.getControlByName("NPCRole") as TextBlock
             role.text = "Class: " + npcRoleToString(this._npcInQueue[0].role);
+
+            if (this._npcInQueue.length === 1) {
+                const avatar = this._ui.getControlByName("NPCImage") as Image
+                avatar.source = this.activeNPC.head;
+            }
         }
     }
 
     public updateQuest() {
         if (this._npcInQueue.length > 0) {
-            const npc = this._npcInQueue[0];
 
             const d = Logic.quest.duration;
             const dur = this._ui.getControlByName("QuestDuration") as TextBlock
             dur.text = `Duration: ${GameTime.durationInDays(d).toFixed(0)} d ${GameTime.durationInHours(d).toFixed(0)} h`;
 
             const acc = this._ui.getControlByName("QuestAcceptance") as TextBlock
-            acc.text = `Rate of Acceptance: ${npc.acceptProb.toFixed(0)}%`;
+            acc.text = `Rate of Acceptance: ${this.activeNPC.acceptProb.toFixed(0)}%`;
 
             const succ = this._ui.getControlByName("QuestSuccess") as TextBlock
-            succ.text = `Rate of Success: ${npc.successProb.toFixed(0)}%`;
+            succ.text = `Rate of Success: ${this.activeNPC.successProb.toFixed(0)}%`;
         }
     }
 

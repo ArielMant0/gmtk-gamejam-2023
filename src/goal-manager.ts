@@ -4,7 +4,7 @@ import { Events } from "./core/events";
 import { IngameTime } from "./core/game-time";
 import { Logic } from "./core/logic";
 import PlayerGoal from "./player-goal";
-import { AdvancedDynamicTexture, TextBlock, Rectangle, Button } from "@babylonjs/gui";
+import { AdvancedDynamicTexture, TextBlock, Rectangle, Button, Image } from "@babylonjs/gui";
 
 const TARGET_NUM_GOALS = 3;
 const MIN_GENERATION_WAIT_TIME = 5;
@@ -79,6 +79,9 @@ export default class GoalManager {
 
     public addGUI(gui: AdvancedDynamicTexture) {
         this._ui = gui;
+
+        const mainIcon = this._ui.getControlByName("GoalImage") as Image
+        mainIcon.source = "icons/trophy-cup.png"
 
         for (let i = 0; i < TARGET_NUM_GOALS; ++i) {
             const cancel =  this._ui.getControlByName("GoalCancel"+i) as Button

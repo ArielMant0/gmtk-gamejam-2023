@@ -3,6 +3,7 @@ import { v4 as uuid } from 'uuid';
 import Quest from "./quest";
 import { NPCB } from "./core/npc-balancing";
 import { Chance } from "chance";
+import { randomNPCHeadIcon } from "./core/assets";
 
 const chance = new Chance();
 
@@ -13,6 +14,8 @@ export default class NPC {
     public role: NPCRole;
     public level: number;
 
+    public head: string;
+
     public quest: Quest | null = null;
     public acceptProb: number = 1;
     public successProb: number = 1;
@@ -22,6 +25,8 @@ export default class NPC {
         this.name = name;
         this.role = role;
         this.level = Math.max(1, Math.round(level));
+        this.head = randomNPCHeadIcon();
+
     }
 
     public get questTimeLeft() {

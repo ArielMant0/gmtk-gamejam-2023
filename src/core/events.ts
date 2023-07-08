@@ -36,7 +36,7 @@ export const Events = (function() {
         return false;
     }
 
-    function emit(name: String, payload: any) {
+    function emit(name: String, payload?: any) {
         const array = _events.get(name);
         if (array) {
             console.debug("emitting event ", name)

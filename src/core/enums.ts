@@ -40,11 +40,36 @@ function questItemTypeToString(item: QuestItemType | null, amount: number = 1) {
         case QuestItemType.WEAPON:
             return amount > 1 ? "Weapons" : "Weapon"
         case QuestItemType.HUNTING_TROPHY:
-            return amount > 1 ? "Dragon Teeth" : "Dragon Tooth"
+            return amount > 1 ? "Horns & Teeth" : "Horn & Tooth"
         case QuestItemType.MESSAGE:
             return amount > 1 ? "Messages" : "Message"
         default:
             return "_ _ _ _ _ _";
+    }
+}
+
+function questItemTypeIcon(item: QuestItemType) {
+    switch(item) {
+        case QuestItemType.MONEY:
+            return "icons/coins.png";
+        case QuestItemType.MUSHROOM:
+            return "icons/mushroom-gills.png";
+        case QuestItemType.APPLE:
+            return "icons/shiny-apple.png";
+        case QuestItemType.GEM:
+            return "icons/emerald.png";
+        case QuestItemType.MEAT:
+            return "icons/meat.png";
+        case QuestItemType.FUR:
+            return "icons/fur-shirt.png";
+        case QuestItemType.HORSE:
+            return "icons/horse-head.png";
+        case QuestItemType.WEAPON:
+            return "icons/spinning-sword.png";
+        case QuestItemType.HUNTING_TROPHY:
+            return "icons/mighty-horn.png";
+        case QuestItemType.MESSAGE:
+            return "icons/envelope.png";
     }
 }
 
@@ -72,9 +97,17 @@ enum QuestStatus {
     FAILURE
 }
 
+enum DialogPhase {
+    NONE,
+    START,
+    QUEST,
+    END
+}
+
 export {
     GameState,
     QuestStatus,
-    QuestItemType, QuestItemTypeArray, questItemTypeToString,
+    QuestItemType, QuestItemTypeArray, questItemTypeToString, questItemTypeIcon,
     NPCRole, NPCRoleArray, npcRoleToString,
+    DialogPhase
 };

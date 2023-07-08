@@ -1,4 +1,4 @@
-import { TransformNode, ShadowGenerator, Scene, Mesh, ArcRotateCamera, Vector3, UniversalCamera, ExecuteCodeAction, ActionManager, PlaySoundAction, Sound, SetValueAction, Color3, Color4, CreateBox, CreateCylinder, Matrix, Quaternion, StandardMaterial } from "@babylonjs/core";
+import { TransformNode, ShadowGenerator, Scene, Vector3, UniversalCamera, ActionManager, PlaySoundAction, Sound, Color3, Color4, CreateBox, CreatePlane, Matrix, Quaternion, StandardMaterial, Texture } from "@babylonjs/core";
 import InputControls from "./input-controls";
 
 export class Player extends TransformNode {
@@ -62,9 +62,9 @@ export class Player extends TransformNode {
         box.position.z = 1;
         box.isPickable = false;
 
-        const body = CreateCylinder("body", { height: 3, diameter: 2 }, this.scene);
+        const body = CreatePlane("body", { height: 3, width: 2 }, this.scene);
         const bodymtl = new StandardMaterial("red", this.scene);
-        bodymtl.diffuseColor = new Color3(0.8, 0.5, 0.5);
+        bodymtl.diffuseTexture = new Texture("icons/troll.png");
         body.material = bodymtl;
         body.isPickable = true;
         body.bakeTransformIntoVertices(Matrix.Translation(0, 1.5, 0)); // simulates the imported mesh's origin

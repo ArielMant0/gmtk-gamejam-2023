@@ -61,7 +61,9 @@ export default class GameScene extends BaseScene {
         const ui = AdvancedDynamicTexture.CreateFullscreenUI("UI");
         // dont detect any inputs from this ui while the game is loading
         this.scene.detachControl();
-        await ui.parseFromURLAsync("gui/gui_game.json")
+
+        // TODO: keep scale to size ??
+        await ui.parseFromURLAsync("gui/gui_game.json", false)
 
         //create a simple button
         const exitBtn = ui.getControlByName("MenuButton") as Button

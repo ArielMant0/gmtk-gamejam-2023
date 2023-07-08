@@ -1,8 +1,8 @@
-import { AdvancedDynamicTexture, Control, TextBlock } from "@babylonjs/gui";
+import { AdvancedDynamicTexture, Control, TextBlock, Image } from "@babylonjs/gui";
 import NPC from "./npc";
-import Quest from "./quest";
 import { Events } from "./core/events";
 import { QuestStatus } from "./core/enums";
+import { roleToIcon } from "./core/assets";
 
 export default class QuestLog {
 
@@ -27,6 +27,8 @@ export default class QuestLog {
             this._updateGUI()
         })
 
+        const mainIcon = this._ui.getControlByName("QuestImage") as Image
+        mainIcon.source = "icons/checklist.png"
     }
 
     private get next() {
@@ -66,7 +68,6 @@ export default class QuestLog {
             let outcome = QuestStatus.FAILURE;
             if (npc.tryCompleteQuest()) {
                 Events.emit("inventory:add", npc.quest?.items[0]);
-                Events.emit("inventory:remove", npc.quest?.rewards[0]);
                 outcome = QuestStatus.SUCCESS;
             } else {
                 Events.emit("inventory:remove", npc.quest?.rewards[0]);
@@ -94,26 +95,27 @@ export default class QuestLog {
             const elem = this._template.clone();
             const npc = this._npcs.get(index) as NPC;
 
-            const fIdx = 0;
-
             elem.isVisible = false;
             elem.name = "Quest" + index;
 
             const descendants = elem.getDescendants(false, (control: Control) => {
-                return control.getClassName() === "TextBlock";
+                return control.getClassName() === "TextBlock" || control.getClassName() === "Image";
             });
 
-            const name = descendants.find((d: Control) => d.name === "QuestNPCName"+fIdx) as TextBlock
-            name.name = "QuestNPCName" + index;
+            const name = descendants.find((d: Control) => d.name === "QuestNPCName0") as TextBlock
             name.text = npc.name;
 
-            const time = descendants.find((d: Control) => d.name === "QuestTimeLeft"+fIdx) as TextBlock
-            time.name = "QuestTimeLeft" + index;
+            const time = descendants.find((d: Control) => d.name === "QuestTimeLeft0") as TextBlock
             time.text = `Time Left: ${npc.quest?.timeLeftInDays} d ${npc.quest?.timeLeftInHours} h`;
 
-            const item = descendants.find((d: Control) => d.name === "QuestReward"+fIdx) as TextBlock
-            item.name = "QuestReward" + index;
+            const item = descendants.find((d: Control) => d.name === "QuestReward0") as TextBlock
             item.text = "Item(s): " + npc.quest?.items[0].toString()
+
+            const head = descendants.find((d: Control) => d.name === "QuestNPCIcon0") as Image
+            head.source = npc.head;
+
+            const role = descendants.find((d: Control) => d.name === "QuestNPCRole0") as Image
+            role.source = roleToIcon(npc.role);
 
             elem.isVisible = true;
             this._parent.addControl(elem)

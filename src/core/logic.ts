@@ -1,3 +1,4 @@
+import NPC from "../npc";
 import Quest from "../quest";
 import QuestItem from "../quest-item";
 import { QuestItemType, QuestItemTypeArray } from "./enums";
@@ -6,6 +7,7 @@ import { Events } from "./events";
 class GameLogic {
 
     public quest: Quest;
+    public npc: NPC | null = null;
     public inventory = new Map<QuestItemType, number>();
 
     constructor(money: number = 1000) {
@@ -14,6 +16,9 @@ class GameLogic {
         });
         this.inventory.set(QuestItemType.MONEY, money);
         this.quest = new Quest([], []);
+
+        Events.on("npc:arrive", (npc: NPC) => this.npc = npc)
+        Events.on("npc:leave", () => this.npc = null)
     }
 
     public get money() {

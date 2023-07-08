@@ -1,5 +1,5 @@
-import { AdvancedDynamicTexture, InputText, Button } from "@babylonjs/gui";
-import { QuestItemType } from "./core/enums";
+import { AdvancedDynamicTexture, InputText, Button, Rectangle, TextBlock } from "@babylonjs/gui";
+import { DialogPhase, QuestItemType } from "./core/enums";
 import { Events } from "./core/events";
 import { Logic } from "./core/logic";
 import QuestItem from "./quest-item";
@@ -12,10 +12,12 @@ export default class QuestBuilder {
     private _gui;
 
     private _selectItem = 0;
+    private _dialogPhase = DialogPhase.NONE;
 
     constructor(itemQ=null, amountQ=1, itemR=QuestItemType.MONEY, amountR=100) {
         this.questItem = new QuestItem(itemQ, amountQ);
         this.rewardItem = new QuestItem(itemR, amountR);
+
         Events.on("questbuilder:add", (item: QuestItemType) => {
             if (this._selectItem === 1) {
                 this.setQuestItemType(item)
@@ -25,6 +27,13 @@ export default class QuestBuilder {
                 this._selectItem = 0;
             }
         })
+
+        Events.on("npc:arrive", () => {
+            if (this._dialogPhase === DialogPhase.NONE) {
+                this._showStartDialog()
+            }
+        })
+        Events.on("npc:quest", this._showEndDialog.bind(this))
     }
 
     private _validateNumber(number: number | string, minValue: number = 1) {
@@ -107,10 +116,6 @@ export default class QuestBuilder {
         const okay = gui.getControlByName("Confirm") as Button
         okay.onPointerClickObservable.add(() => {
             if (this.questItem.item !== null && Logic.checkMoney(this.rewardItem.amount)) {
-                // Events.emit("inventory:add", {
-                //     questItem: this.questItem,
-                //     rewardItem: this.rewardItem
-                // })
                 Events.emit("quest:assign", {
                     questItem: this.questItem,
                     rewardItem: this.rewardItem,
@@ -118,6 +123,15 @@ export default class QuestBuilder {
                 this.reset();
             }
         })
+
+        const buttonDialog = gui.getControlByName("DialogButton") as Button
+        buttonDialog.onPointerClickObservable.add(() => {
+            if (this._dialogPhase === DialogPhase.START) {
+                this._showQuestBuilder()
+            } else if (this._dialogPhase === DialogPhase.END) {
+                this._showStartDialog();
+            }
+        });
     }
 
     public updateGUI() {
@@ -137,5 +151,62 @@ export default class QuestBuilder {
             buttonR.textBlock.text = this.rewardItem.toItemString();
         }
     }
+
+    private _showStartDialog() {
+        if (Logic.npc !== null) {
+
+            const qb = this._gui.getControlByName("QuestBuilder") as Rectangle;
+            qb.isVisible = false;
+
+            const dialog = this._gui.getControlByName("DialogWindow") as Rectangle;
+
+            const speaker = this._gui.getControlByName("DialogSpeaker") as TextBlock
+            speaker.text = Logic.npc.name;
+
+            const text = this._gui.getControlByName("DialogText") as TextBlock
+            text.textWrapping = true;
+            text.text = "Hello, I am an Adventurer! Do you have a quest for me?";
+
+            dialog.isVisible = true;
+            this._dialogPhase = DialogPhase.START;
+        } else {
+            this._dialogPhase = DialogPhase.NONE;
+        }
+    }
+
+    private _showQuestBuilder() {
+        if (Logic.npc !== null) {
+
+            const dialog = this._gui.getControlByName("DialogWindow") as Rectangle;
+            dialog.isVisible = false;
+
+            const qb = this._gui.getControlByName("QuestBuilder") as Rectangle;
+            qb.isVisible = true;
+            this._dialogPhase = DialogPhase.QUEST;
+        } else {
+            this._dialogPhase = DialogPhase.NONE;
+        }
+    }
+
+    private _showEndDialog(accepted: boolean) {
+        if (Logic.npc !== null) {
+
+            const qb = this._gui.getControlByName("QuestBuilder") as Rectangle;
+            qb.isVisible = false;
+
+            const dialog = this._gui.getControlByName("DialogWindow") as Rectangle;
+
+            const speaker = this._gui.getControlByName("DialogSpeaker") as TextBlock
+            speaker.text = Logic.npc.name;
+            const text = this._gui.getControlByName("DialogText") as TextBlock
+            text.text = accepted ? "Sure, I think I can manage that. See you soon!" : "No way. Bye."
+
+            dialog.isVisible = true;
+            this._dialogPhase = DialogPhase.END;
+        } else {
+            this._dialogPhase = DialogPhase.NONE;
+        }
+    }
+
 
 }
