@@ -1,4 +1,4 @@
-import { Engine, SceneOptions, Color4, Vector3, HemisphericLight, Color3, PointLight, ShadowGenerator, Sound, ActionManager, ExecuteCodeAction } from "@babylonjs/core";
+import { Engine, SceneOptions, Vector3, HemisphericLight, Color3, PointLight, ShadowGenerator, Sound, ActionManager, ExecuteCodeAction } from "@babylonjs/core";
 import { AdvancedDynamicTexture, Button, Control } from "@babylonjs/gui";
 import BaseScene from "../core/base-scene";
 import { Events } from "../core/events";
@@ -6,11 +6,16 @@ import { Player } from "../player";
 import { Environment } from "../environment";
 import { GameState } from "../core/enums";
 import InputControls from "../input-controls";
+import QuestBuilder from "../quest-builder";
+import Inventory from "../inventory";
 
 export default class GameScene extends BaseScene {
 
     private _player;
     private _environment;
+
+    private _questBuiler;
+    private _inventory;
 
     private _input;
 
@@ -47,28 +52,25 @@ export default class GameScene extends BaseScene {
             throw new Error("missing scene object")
         }
 
-        this.scene.clearColor = new Color4(0.01568627450980392, 0.01568627450980392, 0.20392156862745098);
-
         //--GUI--
-        const playerUI = AdvancedDynamicTexture.CreateFullscreenUI("UI");
+        const ui = AdvancedDynamicTexture.CreateFullscreenUI("UI");
         // dont detect any inputs from this ui while the game is loading
         this.scene.detachControl();
+        await ui.parseFromURLAsync("gui/gui_game.json")
 
         //create a simple button
-        const exitBtn = Button.CreateSimpleButton("exit", "MENU");
-        exitBtn.width = "80px"
-        exitBtn.height = "40px";
-        exitBtn.color = "white";
-        exitBtn.thickness = 0;
-        exitBtn.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
-        exitBtn.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT
-        playerUI.addControl(exitBtn);
-
+        const exitBtn = ui.getControlByName("MenuButton") as Button
         //this handles interactions with the start button attached to the scene
         exitBtn.onPointerDownObservable.add(() => {
             Events.emit("scene:switch", GameState.PAUSE);
             this.scene.detachControl(); //observables disabled
         });
+
+        this._questBuiler = new QuestBuilder();
+        this._questBuiler.addGUI(ui);
+
+        this._inventory = new Inventory();
+        this._inventory.addGUI(ui);
 
         //primitive character and setting
         await this._initializeGameAsync();
