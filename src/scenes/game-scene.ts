@@ -1,5 +1,5 @@
 import { Engine, SceneOptions, Vector3, HemisphericLight, Color3, PointLight, ShadowGenerator, Sound, ActionManager, ExecuteCodeAction } from "@babylonjs/core";
-import { AdvancedDynamicTexture, Button, Control } from "@babylonjs/gui";
+import { AdvancedDynamicTexture, Button } from "@babylonjs/gui";
 import BaseScene from "../core/base-scene";
 import { Events } from "../core/events";
 import { Player } from "../player";
@@ -8,6 +8,7 @@ import { GameState } from "../core/enums";
 import InputControls from "../input-controls";
 import QuestBuilder from "../quest-builder";
 import Inventory from "../inventory";
+import NPCFactory from "../npc-factory";
 
 export default class GameScene extends BaseScene {
 
@@ -16,6 +17,7 @@ export default class GameScene extends BaseScene {
 
     private _questBuiler;
     private _inventory;
+    private _npcFactory;
 
     private _input;
 
@@ -71,6 +73,9 @@ export default class GameScene extends BaseScene {
 
         this._inventory = new Inventory();
         this._inventory.addGUI(ui);
+
+        this._npcFactory = new NPCFactory();
+        this._npcFactory.addGUI(ui);
 
         //primitive character and setting
         await this._initializeGameAsync();

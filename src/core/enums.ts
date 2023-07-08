@@ -48,4 +48,26 @@ function questItemToString(item: QuestItem | null, amount: number = 1) {
     }
 }
 
-export { GameState, QuestItem, QuestItemArray, questItemToString };
+enum NPCRole {
+    GATHERER,
+    HUNTER,
+    FIGHTER,
+    THIEF
+}
+const NPCRoleArray = Object.values(NPCRole).filter(d => typeof d === "string");
+
+function npcRoleToString(role: NPCRole) {
+    switch(role) {
+        default:
+        case NPCRole.FIGHTER: return "Fighter";
+        case NPCRole.HUNTER: return "Hunter";
+        case NPCRole.GATHERER: return "Gatherer";
+        case NPCRole.THIEF: return "Thief";
+    }
+}
+
+export {
+    GameState,
+    QuestItem, QuestItemArray, questItemToString,
+    NPCRole, NPCRoleArray, npcRoleToString
+};

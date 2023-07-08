@@ -109,7 +109,7 @@ export default class QuestBuilder {
                 Events.emit("inventory:add", {
                     item: this.questItem,
                     amount: this.questAmount,
-                    cost: this.rewardAmount
+                    cost: -this.rewardAmount
                 })
                 this.reset();
             }

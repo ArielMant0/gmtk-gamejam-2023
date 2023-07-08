@@ -13,7 +13,7 @@ export default class Inventory {
             Logic.addToItemAmount(data.item, data.amount)
             this.updateItem(data.item)
             if (data.cost) {
-                Logic.addMoney(-data.cost)
+                Logic.addMoney(data.cost)
                 this.updateMoney();
             }
         })
