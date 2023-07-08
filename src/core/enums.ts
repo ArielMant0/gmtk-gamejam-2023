@@ -66,8 +66,15 @@ function npcRoleToString(role: NPCRole) {
     }
 }
 
+enum QuestStatus {
+    PENDING,
+    SUCCESS,
+    FAILURE
+}
+
 export {
     GameState,
+    QuestStatus,
     QuestItemType, QuestItemTypeArray, questItemTypeToString,
-    NPCRole, NPCRoleArray, npcRoleToString
+    NPCRole, NPCRoleArray, npcRoleToString,
 };

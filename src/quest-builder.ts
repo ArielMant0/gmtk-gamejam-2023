@@ -1,5 +1,5 @@
 import { AdvancedDynamicTexture, InputText, Button } from "@babylonjs/gui";
-import { QuestItemType, questItemTypeToString } from "./core/enums";
+import { QuestItemType } from "./core/enums";
 import { Events } from "./core/events";
 import { Logic } from "./core/logic";
 import QuestItem from "./quest-item";

@@ -1,10 +1,12 @@
 import { Scene } from "@babylonjs/core";
+import { Events } from "./events";
 
 class GameTime {
 
     // number of milliseconds that define 1 ingame hour
     private _hInMS: number;
     private _duration: number = 0;
+    private _scene;
 
     public day: number = 0;
     public hour: number = 0;
@@ -14,16 +16,17 @@ class GameTime {
     }
 
     public start(scene: Scene) {
-        scene.onBeforeRenderObservable.add(this.update.bind(this))
+        this._scene = scene;
+        scene.registerBeforeRender(this.update.bind(this))
     }
 
     public getTime() {
         return this.day * 24 + this.hour;
     }
 
-    public update(scene: Scene) {
+    public update() {
         // TODO: random
-        this._duration += scene.deltaTime * 0.33;
+        this._duration += this._scene.deltaTime * 0.33;
         if (this._duration >= this._hInMS) {
             if (this.hour === 23) {
                 this.hour = 0;
@@ -31,6 +34,7 @@ class GameTime {
             } else {
                 this.hour++;
             }
+            Events.emit("gametime:change", this.getTime())
             this._duration = 0;
         }
     }

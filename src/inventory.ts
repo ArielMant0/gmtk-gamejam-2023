@@ -2,6 +2,7 @@ import { AdvancedDynamicTexture, StackPanel, Rectangle, TextBlock, Control, Butt
 import { QuestItemType, QuestItemTypeArray, questItemTypeToString } from "./core/enums";
 import { Events } from "./core/events";
 import { Logic } from "./core/logic";
+import PlayerGoal from "./player-goal";
 
 export default class Inventory {
 
@@ -17,12 +18,24 @@ export default class Inventory {
                 this.updateMoney();
             }
         })
+
+        Events.on("goal:success", (goal: PlayerGoal) => {
+            const itemTypeQ = goal.items[0].item as QuestItemType;
+            Logic.addToItemAmount(itemTypeQ, -goal.items[0].amount)
+            this.updateItem(itemTypeQ)
+            const itemTypeR = goal.rewards[0].item as QuestItemType;
+            Logic.addToItemAmount(itemTypeR, goal.rewards[0].amount)
+            this.updateItem(itemTypeR)
+        })
     }
 
     public updateItem(item: QuestItemType) {
         if (this._ui.has(item)) {
             // @ts-ignore
             this._ui.get(item).text = "" + Logic.getItemAmount(item);
+            if (item === QuestItemType.MONEY) {
+                this.updateMoney();
+            }
         }
     }
 

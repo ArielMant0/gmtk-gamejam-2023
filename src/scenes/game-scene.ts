@@ -10,6 +10,7 @@ import QuestBuilder from "../quest-builder";
 import Inventory from "../inventory";
 import NPCFactory from "../npc-factory";
 import { IngameTime } from "../core/game-time";
+import GoalManager from "../goal-manager";
 
 export default class GameScene extends BaseScene {
 
@@ -18,6 +19,7 @@ export default class GameScene extends BaseScene {
     private _questBuiler;
     private _inventory;
     private _npcFactory;
+    private _goalManager;
 
     private _input;
 
@@ -75,6 +77,9 @@ export default class GameScene extends BaseScene {
 
         this._inventory = new Inventory();
         this._inventory.addGUI(ui);
+
+        this._goalManager = new GoalManager();
+        this._goalManager.addGUI(ui);
 
         this._npcFactory = new NPCFactory();
         this._npcFactory.addGUI(ui);
