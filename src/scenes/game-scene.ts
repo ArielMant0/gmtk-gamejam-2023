@@ -1,4 +1,4 @@
-import { Engine, SceneOptions, Vector3, HemisphericLight, Color3, PointLight, ShadowGenerator, Sound, ActionManager, ExecuteCodeAction } from "@babylonjs/core";
+import { Engine, SceneOptions, Vector3, HemisphericLight, Color3, PointLight, ShadowGenerator, Sound, ActionManager, ExecuteCodeAction, Layer } from "@babylonjs/core";
 import { AdvancedDynamicTexture, Button } from "@babylonjs/gui";
 import BaseScene from "../core/base-scene";
 import { Events } from "../core/events";
@@ -24,6 +24,7 @@ export default class GameScene extends BaseScene {
 
     private _input;
     private _ui;
+    private _bg;
 
     constructor(id: GameState, engine: Engine, options: SceneOptions = {}) {
         super(id, engine, options, true)
@@ -92,6 +93,8 @@ export default class GameScene extends BaseScene {
             "assets/icons/spritesheet.json",
             this.scene
         );
+
+        this._bg = new Layer("bg", "assets/art/bg.jpg", this.scene, true);
 
         // menu button
         const exitBtn = this._ui.getControlByName("MenuButton") as Button

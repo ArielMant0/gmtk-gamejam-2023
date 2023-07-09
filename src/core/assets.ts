@@ -53,7 +53,6 @@ class AssetManager {
         const meta: any = this._meta.get(id);
         if (meta) {
             const index = meta.frames.findIndex((d: any) => d.filename === filename);
-            console.log(index)
             if (index >= 0) {
                 const sm = this._sheets.get(id);
                 if (sm) {
