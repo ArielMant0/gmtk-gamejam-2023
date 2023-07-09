@@ -12,22 +12,13 @@ export default class QuestBuilder {
 
     private _gui;
 
-    private _selectItem = 0;
     private _dialogPhase = DialogPhase.NONE;
 
     constructor(itemQ=null, amountQ=1, itemR=QuestItemType.MONEY, amountR=100) {
         this.questItem = new QuestItem(itemQ, amountQ);
         this.rewardItem = new QuestItem(itemR, amountR);
 
-        Events.on("questbuilder:add", (item: QuestItemType) => {
-            if (this._selectItem === 1) {
-                this.setQuestItemType(item)
-                this._selectItem = 0;
-            } else if (this._selectItem === 2) {
-                this.setRewardItem(item)
-                this._selectItem = 0;
-            }
-        })
+        Events.on("questbuilder:add", this.setQuestItemType.bind(this));
 
         Events.on("npc:arrive", () => {
             if (this._dialogPhase === DialogPhase.NONE) {
@@ -38,7 +29,6 @@ export default class QuestBuilder {
     }
 
     public reset() {
-        this._selectItem = 0;
         this._dialogPhase = DialogPhase.NONE;
         if (this._gui) {
             const dialog = this._gui.getControlByName("DialogWindow") as Rectangle;
@@ -98,24 +88,20 @@ export default class QuestBuilder {
 
         const amountQ = gui.getControlByName("QuestAmount") as InputText
         amountQ.text = ""+this.questItem.amount;
-        amountQ.onTextChangedObservable.add(() => {
+        amountQ.onBlurObservable.add(() => {
             this.setQuestAmount(amountQ.text)
             amountQ.text = ""+this.questItem.amount;
         });
 
         const buttonQ = gui.getControlByName("QuestItem") as Button
-        // buttonQ.adaptWidthToChildren = true;
+        buttonQ.isReadOnly = true;
         if (buttonQ.textBlock?.text) {
             buttonQ.textBlock.text = this.questItem.toItemString();
         }
-        buttonQ.onPointerDownObservable.add(() => {
-            this._selectItem = 1
-            SM.playSound("click");
-        });
 
         const amountR = gui.getControlByName("RewardAmount") as InputText
         amountR.text = ""+this.rewardItem.amount;
-        amountR.onTextChangedObservable.add(() => {
+        amountR.onBlurObservable.add(() => {
             this.setRewardAmount(amountR.text)
             amountR.text = ""+this.rewardItem.amount;
         });

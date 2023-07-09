@@ -13,8 +13,10 @@ import SM from './core/sound-manager'
 import { Notifier } from "./notify";
 
 const chance = new Chance();
-const NPC_MIN_GEN_TIME = 5;
-const NPC_GEN_TIME_START = -5;
+const NPC_MIN_GEN_TIME = 10;
+const NPC_GEN_TIME_START = -7;
+
+const NPC_SPEED = 0.003;
 
 export default class NPCManager {
 
@@ -217,7 +219,7 @@ export default class NPCManager {
             if (npc.travelPath !== null) {
                 // move to target position
                 sprite.position = npc.travelPath.getPointAt(npc.travelProgess)
-                npc.travelProgess += 0.005;
+                npc.travelProgess += NPC_SPEED;
 
                 // check difference to target position
                 if (npc.travelProgess >= 1) {
@@ -237,20 +239,25 @@ export default class NPCManager {
         this._npcLeavingMeshes.forEach((sprite, index) => {
             const npc = this._npcLeaving[index];
 
-            if (npc.travelPath !== null) {
+            if (npc.travelPath !== null && sprite.isVisible) {
                 // move to target position
                 sprite.position = npc.travelPath.getPointAt(npc.travelProgess)
-                npc.travelProgess += 0.005;
+                npc.travelProgess += NPC_SPEED;
 
                 // check difference to target position
                 if (npc.travelProgess >= 1) {
                     // npc has arrvied at target position - reset
                     npc.travelPath = null;
-                    removeSprite.push(index);
                     if (!npc.acceptedQuest && !npc.quest) {
+                        removeSprite.push(index);
                         removeNPC.push(index);
+                    } else {
+                        sprite.isVisible = false;
                     }
                 }
+            } else if (!npc.acceptedQuest && !npc.quest) {
+                removeSprite.push(index);
+                removeNPC.push(index);
             }
         });
 
