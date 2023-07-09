@@ -5,6 +5,7 @@ import { IngameTime } from "./core/game-time";
 import { Logic } from "./core/logic";
 import PlayerGoal from "./player-goal";
 import { AdvancedDynamicTexture, TextBlock, Rectangle, Button, Image } from "@babylonjs/gui";
+import SM from './core/sound-manager'
 
 const TARGET_NUM_GOALS = 3;
 const MIN_GENERATION_WAIT_TIME = 5;
@@ -74,6 +75,7 @@ export default class GoalManager {
         if (index >= 0 && index < this._goals.length) {
             this._goals.splice(index, 1)
             this.updateGUI();
+            SM.playSound("goal:dismiss")
         }
     }
 
@@ -81,6 +83,7 @@ export default class GoalManager {
         if (index >= 0 && index < this._goals.length) {
             const goal = this._goals.splice(index, 1)[0];
             Events.emit("goal:success", goal)
+            SM.playSound("goal:collect")
             this.updateGUI();
         }
     }

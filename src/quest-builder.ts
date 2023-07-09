@@ -3,6 +3,7 @@ import { DialogPhase, QuestItemType } from "./core/enums";
 import { Events } from "./core/events";
 import { Logic } from "./core/logic";
 import QuestItem from "./quest-item";
+import SM from './core/sound-manager'
 
 export default class QuestBuilder {
 
@@ -108,7 +109,10 @@ export default class QuestBuilder {
         if (buttonQ.textBlock?.text) {
             buttonQ.textBlock.text = this.questItem.toItemString();
         }
-        buttonQ.onPointerDownObservable.add(() => this._selectItem = 1);
+        buttonQ.onPointerDownObservable.add(() => {
+            this._selectItem = 1
+            SM.playSound("click");
+        });
 
         const amountR = gui.getControlByName("RewardAmount") as InputText
         amountR.autoStretchWidth = true;
@@ -123,10 +127,14 @@ export default class QuestBuilder {
         if (buttonR.textBlock?.text) {
             buttonR.textBlock.text = this.rewardItem.toItemString();
         }
-        buttonR.onPointerDownObservable.add(() => this._selectItem = 2);
+        buttonR.onPointerDownObservable.add(() => {
+            this._selectItem = 2
+            SM.playSound("click");
+        });
 
         const okay = gui.getControlByName("Confirm") as Button
         okay.onPointerClickObservable.add(() => {
+            SM.playSound("click");
             if (this.questItem.item !== null && Logic.checkMoney(this.rewardItem.amount)) {
                 Events.emit("quest:assign", {
                     questItem: this.questItem,
@@ -137,6 +145,7 @@ export default class QuestBuilder {
 
         const buttonDialog = gui.getControlByName("DialogButton") as Button
         buttonDialog.onPointerClickObservable.add(() => {
+            SM.playSound("click");
             if (this._dialogPhase === DialogPhase.START) {
                 this._showQuestBuilder()
             } else if (this._dialogPhase === DialogPhase.END) {

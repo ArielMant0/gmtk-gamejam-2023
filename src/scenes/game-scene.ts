@@ -12,6 +12,7 @@ import { IngameTime } from "../core/game-time";
 import GoalManager from "../goal-manager";
 import { Logic } from "../core/logic";
 import ASSETS from '../core/assets'
+import SM from '../core/sound-manager'
 
 export default class GameScene extends BaseScene {
 
@@ -30,8 +31,9 @@ export default class GameScene extends BaseScene {
         super(id, engine, options, true)
     }
 
-    public makeScene() {
-        const created = super.makeScene();
+    public async makeScene() {
+        const created = await super.makeScene();
+
         if (!this.scene) {
             throw new Error("missing scene object");
         }
@@ -50,18 +52,45 @@ export default class GameScene extends BaseScene {
                 }
             }));
         }
+
+        if (!ASSETS.hasSheet("icons")) {
+            await ASSETS.loadSpritesheet(
+                "icons",
+                "assets/icons/spritesheet.png",
+                "assets/icons/spritesheet.json",
+                this.scene
+            );
+        }
+
+        if (!SM.ready || SM.size === 0) {
+            if (!SM.ready) {
+                SM.init(this.scene)
+            }
+
+            SM.loadSound("click", "assets/sounds/bump.mp3")
+            SM.loadSound("notify:success", "assets/sounds/bump.mp3")
+            SM.loadSound("notify:failure", "assets/sounds/bump.mp3")
+            SM.loadSound("npc:arrive", "assets/sounds/bump.mp3")
+            SM.loadSound("quest:accept", "assets/sounds/bump.mp3")
+            SM.loadSound("quest:reject", "assets/sounds/bump.mp3")
+            SM.loadSound("goal:dismiss", "assets/sounds/bump.mp3")
+            SM.loadSound("goal:collect", "assets/sounds/bump.mp3")
+            await SM.loadMusic("soundtrack", "assets/sounds/woodland-fantasy.mp3")
+        }
+
         return created;
     }
 
     public async init() {
-        this.makeScene()
+        await this.makeScene()
 
         if (!this.scene) {
             throw new Error("missing scene object")
         }
 
-        IngameTime.start(this.scene);
+        SM.playMusic("soundtrack");
 
+        IngameTime.start(this.scene);
         this._npcFactory.start(this.scene);
 
         //primitive character and setting
@@ -77,7 +106,7 @@ export default class GameScene extends BaseScene {
         }
 
         if (!this.scene) {
-            this.makeScene();
+            await this.makeScene();
         }
 
         this._ui = AdvancedDynamicTexture.CreateFullscreenUI("UI");
@@ -86,13 +115,6 @@ export default class GameScene extends BaseScene {
 
         // TODO: keep scale to size ??
         await this._ui.parseFromURLAsync("assets/gui/gui_game.json", false)
-
-        await ASSETS.loadSpritesheet(
-            "icons",
-            "assets/icons/spritesheet.png",
-            "assets/icons/spritesheet.json",
-            this.scene
-        );
 
         this._bg = new Layer("bg", "assets/art/bg.jpg", this.scene, true);
 
@@ -115,7 +137,6 @@ export default class GameScene extends BaseScene {
         this._npcFactory = new NPCManager();
         this._npcFactory.addGUI(this._ui);
 
-        const sound = new Sound("bump", "assets/sounds/bump.mp3", this.scene)
         this._player = new Player(this.scene);
 
         await this._player.load();

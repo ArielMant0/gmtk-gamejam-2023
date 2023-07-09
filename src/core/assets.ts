@@ -37,6 +37,10 @@ class AssetManager {
 
     constructor() {}
 
+    public hasSheet(id: string) {
+        return this._sheets.has(id);
+    }
+
     public async loadSpritesheet(id: string, imageUrl: string, metaUrl: string, scene: Scene) {
         const meta: any = JSON.parse(await Tools.LoadFileAsync(metaUrl, false) as string);
         this._meta.set(id, meta);

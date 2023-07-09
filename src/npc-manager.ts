@@ -9,6 +9,7 @@ import Quest from "./quest";
 import { Logic } from "./core/logic";
 import QuestLog from "./quest-log";
 import ASSETS from './core/assets'
+import SM from './core/sound-manager'
 
 const chance = new Chance();
 const NPC_MIN_GEN_TIME = 5;
@@ -58,18 +59,22 @@ export default class NPCManager {
             }
         })
         Events.on("npc:leave", () => {
+
             if (this._npcInQueue.length > 0) {
                 const npc = this.activeNPC;
 
                 if (npc.acceptedQuest) {
+                    SM.playSound("quest:accept")
                     this._assignQuest(Logic.quest)
                     this._addToQuestLog(npc.id);
                 } else {
+                    SM.playSound("quest:reject")
                     this._npcInQueue.shift();
                     const mesh = this._npcMeshes.shift();
                     mesh?.dispose();
                     this.updateAll();
                 }
+                this._updateNPCTargetPositions();
             }
 
             this._ui.getControlByName("NPCStats").isVisible = this._npcInQueue.length !== 0;
@@ -113,7 +118,7 @@ export default class NPCManager {
                 }
             }
 
-            this.moveNPCMeshes();
+            this._moveNPCs();
         })
     }
 
@@ -187,7 +192,7 @@ export default class NPCManager {
         }
     }
 
-    public moveNPCMeshes() {
+    private _moveNPCs() {
         this._npcMeshes.forEach((sprite, index) => {
             const npc = this._npcInQueue[index];
             if (npc.targetPos !== null) {
@@ -201,8 +206,23 @@ export default class NPCManager {
                     npc.targetPos = null;
                     if (index === 0 && !Logic.npc) {
                         Events.emit("npc:arrive", npc);
+                        SM.playSound("npc:arrive")
                     }
                 }
+            }
+        });
+    }
+
+    private _updateNPCTargetPositions() {
+        this._npcMeshes.forEach((sprite, index) => {
+            const npc = this._npcInQueue[index];
+
+            const tPos = Logic.PLAYER_POSITION.add(new Vector3((index + 1) * 1.5, 0, 0))
+
+            if ((npc.targetPos !== null && npc.targetPos.subtract(tPos).length() > 0.001) ||
+                sprite.position.subtract(tPos).length() > 0.001
+            ) {
+                npc.targetPos = tPos;
             }
         });
     }

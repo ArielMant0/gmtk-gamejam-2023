@@ -19,7 +19,7 @@ export default class BaseScene {
         this._cacheScene = cacheScene;
     }
 
-    public makeScene() {
+    public async makeScene() {
         if (!this.scene || !this._cacheScene) {
             this.scene = new Scene(this.engine, this.options);
             return true;

@@ -10,8 +10,8 @@ export default class PauseScene extends BaseScene {
         super(id, engine, options)
     }
 
-    public makeScene() {
-        if (super.makeScene()) {
+    public async makeScene() {
+        if (await super.makeScene()) {
             this.scene.actionManager = new ActionManager(this.scene);
             this.scene.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnKeyDownTrigger, evt => {
                 if (evt.sourceEvent.key === 'Escape') {
