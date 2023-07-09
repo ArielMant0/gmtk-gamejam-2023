@@ -72,10 +72,10 @@ export default class GameScene extends BaseScene {
             SM.loadSound("notify:success", "assets/sounds/bump.mp3")
             SM.loadSound("notify:failure", "assets/sounds/bump.mp3")
             SM.loadSound("npc:arrive", "assets/sounds/bump.mp3")
-            SM.loadSound("quest:accept", "assets/sounds/bump.mp3")
-            SM.loadSound("quest:reject", "assets/sounds/bump.mp3")
+            SM.loadSound("quest:accept", "assets/sounds/human_accept.mp3")
+            SM.loadSound("quest:reject", "assets/sounds/human_reject.mp3")
             SM.loadSound("goal:dismiss", "assets/sounds/bump.mp3")
-            SM.loadSound("goal:collect", "assets/sounds/bump.mp3")
+            SM.loadSound("goal:collect", "assets/sounds/gold_sack.wav")
             await SM.loadMusic("soundtrack", "assets/sounds/woodland-fantasy.mp3")
         }
 

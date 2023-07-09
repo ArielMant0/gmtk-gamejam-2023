@@ -52,6 +52,7 @@ as well as a style guide.
 This project was developed by:
 - [ArielMant0](https://github.com/ArielMant0)
 - [rwarnking](https://github.com/rwarnking)
+- [lwarnking](https://github.com/lwarnking)
 
 ## License
 This project is licensed under the [MIT License](LICENSE).
