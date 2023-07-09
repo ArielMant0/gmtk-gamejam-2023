@@ -89,7 +89,7 @@ export default class GoalManager {
         this._ui = gui;
 
         const mainIcon = this._ui.getControlByName("GoalImage") as Image
-        mainIcon.source = "icons/trophy-cup.png"
+        mainIcon.source = "assets/icons/trophy-cup.png"
 
         for (let i = 0; i < TARGET_NUM_GOALS; ++i) {
             const cancel =  this._ui.getControlByName("GoalCancel"+i) as Button

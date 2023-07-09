@@ -11,7 +11,7 @@ import QuestLog from "./quest-log";
 import ASSETS from './core/assets'
 
 const chance = new Chance();
-const NPC_MIN_GEN_TIME = 10;
+const NPC_MIN_GEN_TIME = 5;
 const NPC_GEN_TIME_START = -5;
 
 export default class NPCManager {
@@ -54,7 +54,7 @@ export default class NPCManager {
             this._ui.getControlByName("NPCStats").isVisible = true;
             if (this._npcInQueue.length === 1) {
                 const avatar = this._ui.getControlByName("NPCImage") as Image
-                avatar.source = "icons/" + this.activeNPC.head;
+                avatar.source = "assets/icons/" + this.activeNPC.head;
             }
         })
         Events.on("npc:leave", () => {
@@ -75,7 +75,7 @@ export default class NPCManager {
             this._ui.getControlByName("NPCStats").isVisible = this._npcInQueue.length !== 0;
             if (this._npcInQueue.length > 0) {
                 const avatar = this._ui.getControlByName("NPCImage") as Image
-                avatar.source = "icons/" + this.activeNPC.head;
+                avatar.source = "assets/icons/" + this.activeNPC.head;
             }
         })
     }
@@ -125,7 +125,8 @@ export default class NPCManager {
         );
 
         const sprite = ASSETS.getSprite("icons", npc.head) as Sprite
-        sprite.position.y += (this._npcInQueue.length+1) * 1.5;
+        const distance = (this._npcInQueue.length + 1) * 1.5
+        npc.targetPos = Logic.PLAYER_POSITION.add(new Vector3(distance, 0, 0))
 
         this._npcInQueue.push(npc);
         this._npcMeshes.push(sprite)
@@ -187,15 +188,20 @@ export default class NPCManager {
     }
 
     public moveNPCMeshes() {
-        this._npcMeshes.forEach((mesh, index) => {
-            if (Math.abs(mesh.position.y - index * 1.5) > 0.001) {
-                const newpos = mesh.position.clone()
-                newpos.y = index * 1.5
-                mesh.position = Vector3.Lerp(mesh.position, newpos, 0.1);
-            } else if (index === 0) {
-                // TODO: only do this once
-                if (!Logic.npc) {
-                    Events.emit("npc:arrive", this.activeNPC);
+        this._npcMeshes.forEach((sprite, index) => {
+            const npc = this._npcInQueue[index];
+            if (npc.targetPos !== null) {
+                // move to target position
+                sprite.position = Vector3.Lerp(sprite.position, npc.targetPos, 0.05);
+                const diff = sprite.position.subtract(npc.targetPos).length();
+
+                // check difference to target position
+                if (diff < 0.001) {
+                    // npc has arrvied at target position - reset
+                    npc.targetPos = null;
+                    if (index === 0 && !Logic.npc) {
+                        Events.emit("npc:arrive", npc);
+                    }
                 }
             }
         });

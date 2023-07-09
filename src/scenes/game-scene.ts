@@ -84,12 +84,12 @@ export default class GameScene extends BaseScene {
         this.scene.detachControl();
 
         // TODO: keep scale to size ??
-        await this._ui.parseFromURLAsync("gui/gui_game.json", false)
+        await this._ui.parseFromURLAsync("assets/gui/gui_game.json", false)
 
-        ASSETS.loadSpritesheet(
+        await ASSETS.loadSpritesheet(
             "icons",
-            "icons/spritesheet.png",
-            "icons/spritesheet.json",
+            "assets/icons/spritesheet.png",
+            "assets/icons/spritesheet.json",
             this.scene
         );
 
@@ -112,8 +112,8 @@ export default class GameScene extends BaseScene {
         this._npcFactory = new NPCManager();
         this._npcFactory.addGUI(this._ui);
 
-        const sound = new Sound("bump", "/bump.mp3", this.scene)
-        this._player = new Player(this.scene, this._input);
+        const sound = new Sound("bump", "assets/sounds/bump.mp3", this.scene)
+        this._player = new Player(this.scene);
 
         await this._player.load();
     }
@@ -131,16 +131,9 @@ export default class GameScene extends BaseScene {
 
     private async _initializeGameAsync() {
         const light0 = new HemisphericLight("HemiLight", new Vector3(0, 1, 0), this.scene);
-
-        const light = new PointLight("sparklight", new Vector3(0, 1, 0), this.scene);
-        light.diffuse = new Color3(0.08627450980392157, 0.10980392156862745, 0.15294117647058825);
-        light.intensity = 35;
-        light.radius = 1;
-
-        const shadowGenerator = new ShadowGenerator(1024, light);
-        shadowGenerator.darkness = 0.4;
-
-        // create the player
-        this._player.addShadows(shadowGenerator)
+        // const light = new PointLight("sparklight", new Vector3(0, 1, 0), this.scene);
+        // light.diffuse = new Color3(0.08627450980392157, 0.10980392156862745, 0.15294117647058825);
+        // light.intensity = 35;
+        // light.radius = 1;
     }
 }

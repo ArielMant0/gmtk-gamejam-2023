@@ -4,6 +4,7 @@ import Quest from "./quest";
 import { NPCB } from "./core/npc-balancing";
 import { Chance } from "chance";
 import { randomNPCHeadIcon } from "./core/assets";
+import { Vector3 } from "@babylonjs/core";
 
 const chance = new Chance();
 
@@ -22,6 +23,7 @@ export default class NPC {
     public successProb: number = 0;
 
     public acceptedQuest: boolean = false;
+    public targetPos: Vector3 | null = null;
 
     constructor(name: string, role: NPCRole, level: number) {
         this.id = uuid();

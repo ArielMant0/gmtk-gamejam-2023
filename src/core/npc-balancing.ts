@@ -9,10 +9,10 @@ class NPCBalancing {
     private _tables = new Map<NPCRole, Map<QuestItemType, Object>>();
 
     constructor() {
-        this.loadTable(NPCRole.FIGHTER, "balancing/fighter_table.csv")
-        this.loadTable(NPCRole.HUNTER, "balancing/hunter_table.csv")
-        this.loadTable(NPCRole.GATHERER, "balancing/gatherer_table.csv")
-        this.loadTable(NPCRole.THIEF, "balancing/thief_table.csv")
+        this.loadTable(NPCRole.FIGHTER, "assets/balancing/fighter_table.csv")
+        this.loadTable(NPCRole.HUNTER, "assets/balancing/hunter_table.csv")
+        this.loadTable(NPCRole.GATHERER, "assets/balancing/gatherer_table.csv")
+        this.loadTable(NPCRole.THIEF, "assets/balancing/thief_table.csv")
     }
 
     public loadTable(role: NPCRole, url: string) {

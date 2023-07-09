@@ -1,3 +1,4 @@
+import { Vector3 } from "@babylonjs/core";
 import NPC from "../npc";
 import Quest from "../quest";
 import QuestItem from "../quest-item";
@@ -9,6 +10,8 @@ class GameLogic {
     public quest: Quest;
     public npc: NPC | null = null;
     public inventory = new Map<QuestItemType, number>();
+
+    public PLAYER_POSITION = new Vector3(-8, 5, 0);
 
     constructor(money: number = 1000) {
         QuestItemTypeArray.forEach(nr => {

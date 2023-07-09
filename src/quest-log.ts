@@ -28,7 +28,7 @@ export default class QuestLog {
         })
 
         const mainIcon = this._ui.getControlByName("QuestImage") as Image
-        mainIcon.source = "icons/checklist.png"
+        mainIcon.source = "assets/icons/checklist.png"
     }
 
     public reset() {
@@ -120,10 +120,10 @@ export default class QuestLog {
             item.text = "Item(s): " + npc.quest?.items[0].toString()
 
             const head = descendants.find((d: Control) => d.name === "QuestNPCIcon0") as Image
-            head.source = "icons/" + npc.head;
+            head.source = "assets/icons/" + npc.head;
 
             const role = descendants.find((d: Control) => d.name === "QuestNPCRole0") as Image
-            role.source = "icons/" + roleToIcon(npc.role);
+            role.source = "assets/icons/" + roleToIcon(npc.role);
 
             elem.isVisible = true;
             this._parent.addControl(elem)

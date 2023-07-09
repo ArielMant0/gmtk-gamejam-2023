@@ -51,25 +51,25 @@ function questItemTypeToString(item: QuestItemType | null, amount: number = 1) {
 function questItemTypeIcon(item: QuestItemType) {
     switch(item) {
         case QuestItemType.MONEY:
-            return "icons/coins.png";
+            return "assets/icons/coins.png";
         case QuestItemType.MUSHROOM:
-            return "icons/mushroom-gills.png";
+            return "assets/icons/mushroom-gills.png";
         case QuestItemType.APPLE:
-            return "icons/shiny-apple.png";
+            return "assets/icons/shiny-apple.png";
         case QuestItemType.GEM:
-            return "icons/emerald.png";
+            return "assets/icons/emerald.png";
         case QuestItemType.MEAT:
-            return "icons/meat.png";
+            return "assets/icons/meat.png";
         case QuestItemType.FUR:
-            return "icons/fur-shirt.png";
+            return "assets/icons/fur-shirt.png";
         case QuestItemType.HORSE:
-            return "icons/horse-head.png";
+            return "assets/icons/horse-head.png";
         case QuestItemType.WEAPON:
-            return "icons/spinning-sword.png";
+            return "assets/icons/spinning-sword.png";
         case QuestItemType.HUNTING_TROPHY:
-            return "icons/mighty-horn.png";
+            return "assets/icons/mighty-horn.png";
         case QuestItemType.MESSAGE:
-            return "icons/envelope.png";
+            return "assets/icons/envelope.png";
     }
 }
 

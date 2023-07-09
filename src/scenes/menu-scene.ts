@@ -21,7 +21,7 @@ export default class MenuScene extends BaseScene {
         const guiMenu = AdvancedDynamicTexture.CreateFullscreenUI("UI");
         guiMenu.idealHeight = 720;
 
-        const image = new Image("bg", "dummy.jpg");
+        const image = new Image("bg", "assets/art/bg.jpg");
         image.stretch = Image.STRETCH_FILL;
         guiMenu.addControl(image);
 
