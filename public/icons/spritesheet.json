@@ -1,0 +1,540 @@
+{
+	"frames": [
+		{
+			"filename": "barbarian.png",
+			"frame": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		},
+		{
+			"filename": "barbute.png",
+			"frame": {
+				"x": 512,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		},
+		{
+			"filename": "bowman.png",
+			"frame": {
+				"x": 1024,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		},
+		{
+			"filename": "checklist.png",
+			"frame": {
+				"x": 1536,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		},
+		{
+			"filename": "cleopatra.png",
+			"frame": {
+				"x": 2048,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		},
+		{
+			"filename": "coins.png",
+			"frame": {
+				"x": 0,
+				"y": 512,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		},
+		{
+			"filename": "emerald.png",
+			"frame": {
+				"x": 512,
+				"y": 512,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		},
+		{
+			"filename": "envelope.png",
+			"frame": {
+				"x": 1024,
+				"y": 512,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		},
+		{
+			"filename": "farmer.png",
+			"frame": {
+				"x": 1536,
+				"y": 512,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		},
+		{
+			"filename": "female-vampire.png",
+			"frame": {
+				"x": 2048,
+				"y": 512,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		},
+		{
+			"filename": "fur-shirt.png",
+			"frame": {
+				"x": 0,
+				"y": 1024,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		},
+		{
+			"filename": "golem-head.png",
+			"frame": {
+				"x": 512,
+				"y": 1024,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		},
+		{
+			"filename": "hooded-assassin.png",
+			"frame": {
+				"x": 1024,
+				"y": 1024,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		},
+		{
+			"filename": "horse-head.png",
+			"frame": {
+				"x": 1536,
+				"y": 1024,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		},
+		{
+			"filename": "meat.png",
+			"frame": {
+				"x": 2048,
+				"y": 1024,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		},
+		{
+			"filename": "mighty-horn.png",
+			"frame": {
+				"x": 0,
+				"y": 1536,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		},
+		{
+			"filename": "mushroom-gills.png",
+			"frame": {
+				"x": 512,
+				"y": 1536,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		},
+		{
+			"filename": "ninja-head.png",
+			"frame": {
+				"x": 1024,
+				"y": 1536,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		},
+		{
+			"filename": "shiny-apple.png",
+			"frame": {
+				"x": 1536,
+				"y": 1536,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		},
+		{
+			"filename": "spinning-sword.png",
+			"frame": {
+				"x": 2048,
+				"y": 1536,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		},
+		{
+			"filename": "swordwoman.png",
+			"frame": {
+				"x": 0,
+				"y": 2048,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		},
+		{
+			"filename": "troll.png",
+			"frame": {
+				"x": 512,
+				"y": 2048,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		},
+		{
+			"filename": "trophy-cup.png",
+			"frame": {
+				"x": 1024,
+				"y": 2048,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		},
+		{
+			"filename": "wizard-face.png",
+			"frame": {
+				"x": 1536,
+				"y": 2048,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		},
+		{
+			"filename": "woman-elf-face.png",
+			"frame": {
+				"x": 2048,
+				"y": 2048,
+				"w": 512,
+				"h": 512
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 512,
+				"h": 512
+			},
+			"sourceSize": {
+				"w": 512,
+				"h": 512
+			}
+		}
+	],
+	"meta": {
+		"app": "http://www.codeandweb.com/texturepacker",
+		"version": "1.0",
+		"image": "spritesheet.png",
+		"format": "RGBA8888",
+		"size": {
+			"w": 2560,
+			"h": 2560
+		},
+		"scale": "1"
+	}
+}

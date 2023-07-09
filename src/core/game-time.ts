@@ -15,9 +15,15 @@ class GameTime {
         this._hInMS = hInMS;
     }
 
+    public reset() {
+        this.day = 0;
+        this.hour = 0;
+        this._duration = 0;
+    }
+
     public start(scene: Scene) {
         this._scene = scene;
-        scene.registerBeforeRender(this.update.bind(this))
+        scene.registerAfterRender(this.update.bind(this))
     }
 
     public getTime() {
@@ -26,7 +32,7 @@ class GameTime {
 
     public update() {
         // TODO: why is this 0.33
-        this._duration += this._scene.deltaTime * 0.33;
+        this._duration += this._scene.deltaTime;
         if (this._duration >= this._hInMS) {
             if (this.hour === 23) {
                 this.hour = 0;

@@ -31,6 +31,16 @@ export default class QuestLog {
         mainIcon.source = "icons/checklist.png"
     }
 
+    public reset() {
+        this._count = 1;
+        this._map.forEach(index => {
+            const c = this._ui.getControlByName("Quest"+index)
+            c?.dispose();
+        });
+        this._map.clear();
+        this._npcs.clear();
+    }
+
     private get next() {
         const val = this._count;
         this._count = this._count < Number.MAX_SAFE_INTEGER ? this._count+1 : 1;
@@ -69,8 +79,6 @@ export default class QuestLog {
             if (npc.tryCompleteQuest()) {
                 Events.emit("inventory:add", npc.quest?.items[0]);
                 outcome = QuestStatus.SUCCESS;
-            } else {
-                Events.emit("inventory:remove", npc.quest?.rewards[0]);
             }
 
             Events.emit("quest:completed", {
@@ -112,10 +120,10 @@ export default class QuestLog {
             item.text = "Item(s): " + npc.quest?.items[0].toString()
 
             const head = descendants.find((d: Control) => d.name === "QuestNPCIcon0") as Image
-            head.source = npc.head;
+            head.source = "icons/" + npc.head;
 
             const role = descendants.find((d: Control) => d.name === "QuestNPCRole0") as Image
-            role.source = roleToIcon(npc.role);
+            role.source = "icons/" + roleToIcon(npc.role);
 
             elem.isVisible = true;
             this._parent.addControl(elem)

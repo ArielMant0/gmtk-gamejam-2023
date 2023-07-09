@@ -36,6 +36,18 @@ export default class QuestBuilder {
         Events.on("npc:quest", this._showEndDialog.bind(this))
     }
 
+    public reset() {
+        this._selectItem = 0;
+        this._dialogPhase = DialogPhase.NONE;
+        if (this._gui) {
+            const dialog = this._gui.getControlByName("DialogWindow") as Rectangle;
+            dialog.isVisible = false;
+            const qb = this._gui.getControlByName("QuestBuilder") as Rectangle;
+            qb.isVisible = false;
+        }
+        this.resetQuest();
+    }
+
     private _validateNumber(number: number | string, minValue: number = 1) {
         if (typeof number === "string") {
             number = Number.parseInt(number)
@@ -58,7 +70,7 @@ export default class QuestBuilder {
         this.updateGUI();
     }
 
-    public reset() {
+    public resetQuest() {
         this.questItem.setItem(null);
         this.questItem.setAmount(1);
         this.rewardItem.setItem(QuestItemType.MONEY);
@@ -185,7 +197,7 @@ export default class QuestBuilder {
     private _showQuestBuilder() {
         if (Logic.npc !== null) {
 
-            this.reset();
+            this.resetQuest();
 
             const dialog = this._gui.getControlByName("DialogWindow") as Rectangle;
             dialog.isVisible = false;

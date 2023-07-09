@@ -50,10 +50,10 @@ export default class NPC {
 
         if (this.acceptedQuest) {
             this.quest = quest;
-            console.log("quest accepted")
+            console.debug("quest accepted")
             return true;
         } else {
-            console.log("quest rejected")
+            console.debug("quest rejected")
             return false;
         }
 

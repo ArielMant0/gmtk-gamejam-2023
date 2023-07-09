@@ -44,6 +44,14 @@ export default class GoalManager {
         this._lastGenTime = IngameTime.getTime();
     }
 
+    public reset() {
+        this._goals.push(PlayerGoal.createRandom());
+        this._goals.push(PlayerGoal.createRandom());
+        this._goals.push(PlayerGoal.createRandom());
+        this._sort();
+        this._lastGenTime = 0;
+    }
+
     private _sort() {
         this._goals.sort((a, b) => a.timeLeft - b.timeLeft)
     }

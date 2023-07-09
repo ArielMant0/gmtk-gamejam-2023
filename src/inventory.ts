@@ -31,6 +31,14 @@ export default class Inventory {
         })
     }
 
+    public reset() {
+        this.updateAllItems();
+    }
+
+    public updateAllItems() {
+        QuestItemTypeArray.forEach(nr => this.updateItem(QuestItemType[nr]))
+    }
+
     public updateItem(item: QuestItemType) {
         if (item === QuestItemType.MONEY) {
             this.updateMoney();

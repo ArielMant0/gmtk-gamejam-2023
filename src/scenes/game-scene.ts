@@ -10,6 +10,8 @@ import Inventory from "../inventory";
 import NPCManager from "../npc-manager";
 import { IngameTime } from "../core/game-time";
 import GoalManager from "../goal-manager";
+import { Logic } from "../core/logic";
+import ASSETS from '../core/assets'
 
 export default class GameScene extends BaseScene {
 
@@ -21,6 +23,7 @@ export default class GameScene extends BaseScene {
     private _goalManager;
 
     private _input;
+    private _ui;
 
     constructor(id: GameState, engine: Engine, options: SceneOptions = {}) {
         super(id, engine, options, true)
@@ -31,8 +34,6 @@ export default class GameScene extends BaseScene {
         if (!this.scene) {
             throw new Error("missing scene object");
         }
-
-        IngameTime.start(this.scene);
 
         if (!this._input) {
             this.scene.actionManager = new ActionManager(this.scene);
@@ -53,37 +54,13 @@ export default class GameScene extends BaseScene {
 
     public async init() {
         this.makeScene()
+
         if (!this.scene) {
             throw new Error("missing scene object")
         }
 
-        //--GUI--
-        const ui = AdvancedDynamicTexture.CreateFullscreenUI("UI");
-        // dont detect any inputs from this ui while the game is loading
-        this.scene.detachControl();
+        IngameTime.start(this.scene);
 
-        // TODO: keep scale to size ??
-        await ui.parseFromURLAsync("gui/gui_game.json", false)
-
-        //create a simple button
-        const exitBtn = ui.getControlByName("MenuButton") as Button
-        //this handles interactions with the start button attached to the scene
-        exitBtn.onPointerDownObservable.add(() => {
-            Events.emit("scene:switch", GameState.PAUSE);
-            this.scene.detachControl(); //observables disabled
-        });
-
-        this._questBuiler = new QuestBuilder();
-        this._questBuiler.addGUI(ui);
-
-        this._inventory = new Inventory();
-        this._inventory.addGUI(ui);
-
-        this._goalManager = new GoalManager();
-        this._goalManager.addGUI(ui);
-
-        this._npcFactory = new NPCManager();
-        this._npcFactory.addGUI(ui);
         this._npcFactory.start(this.scene);
 
         //primitive character and setting
@@ -91,10 +68,10 @@ export default class GameScene extends BaseScene {
     }
 
     public async load(force=false) {
-        if (!force && this._player) {
-            console.debug("already loaded game scene assets")
+        this.reset();
 
-            this._player.reset();
+        if (!force && this.loaded) {
+            console.debug("already loaded game scene assets")
             return;
         }
 
@@ -102,12 +79,54 @@ export default class GameScene extends BaseScene {
             this.makeScene();
         }
 
-        // const assetsManager = new AssetsManager(this.scene);
+        this._ui = AdvancedDynamicTexture.CreateFullscreenUI("UI");
+        // dont detect any inputs from this ui while the game is loading
+        this.scene.detachControl();
+
+        // TODO: keep scale to size ??
+        await this._ui.parseFromURLAsync("gui/gui_game.json", false)
+
+        ASSETS.loadSpritesheet(
+            "icons",
+            "icons/spritesheet.png",
+            "icons/spritesheet.json",
+            this.scene
+        );
+
+        // menu button
+        const exitBtn = this._ui.getControlByName("MenuButton") as Button
+        exitBtn.onPointerDownObservable.add(() => {
+            Events.emit("scene:switch", GameState.PAUSE);
+            this.scene.detachControl();
+        });
+
+        this._questBuiler = new QuestBuilder();
+        this._questBuiler.addGUI(this._ui);
+
+        this._inventory = new Inventory();
+        this._inventory.addGUI(this._ui);
+
+        this._goalManager = new GoalManager();
+        this._goalManager.addGUI(this._ui);
+
+        this._npcFactory = new NPCManager();
+        this._npcFactory.addGUI(this._ui);
 
         const sound = new Sound("bump", "/bump.mp3", this.scene)
         this._player = new Player(this.scene, this._input);
 
         await this._player.load();
+    }
+
+    public reset() {
+        Logic.reset();
+        IngameTime.reset();
+
+        if (this._player) this._player.reset();
+        if (this._questBuiler) this._questBuiler.reset();
+        if (this._inventory) this._inventory.reset();
+        if (this._goalManager) this._goalManager.reset();
+        if (this._npcFactory) this._npcFactory.reset();
     }
 
     private async _initializeGameAsync() {

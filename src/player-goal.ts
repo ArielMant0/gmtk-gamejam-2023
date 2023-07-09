@@ -33,11 +33,12 @@ export default class PlayerGoal {
 
     public get status() {
         const onTime = (this.deadline === null || this.timeLeft >= 0);
-        const hasItems = Logic.getItemAmount(this.items[0].item as QuestItemType) === this.items[0].amount
+        const hasItems = Logic.getItemAmount(this.items[0].item as QuestItemType) >= this.items[0].amount
         return onTime && hasItems ? QuestStatus.SUCCESS : (onTime ? QuestStatus.PENDING : QuestStatus.FAILURE);
     }
 
     static createRandom() {
+        // TODO: change this?
         const numItems = 1;// chance.integer({ min: 1, max: QuestItemTypeArray.length-1 });
 
         const items = chance.pickset(QuestItemTypeArray.filter(d => d !== "MONEY"), numItems)
@@ -45,7 +46,7 @@ export default class PlayerGoal {
         const rewards = [new QuestItem(QuestItemType.MONEY, chance.integer({ min: items.length*25, max: items.length*100 }))]
 
         let deadline: number | null = null;
-        if (chance.bool() || true) {
+        if (chance.bool({ likelihood: 66 })) {
             deadline = IngameTime.getTime() + chance.integer({ min: 1*24, max: 3*24 });
         }
 

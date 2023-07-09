@@ -8,8 +8,9 @@ export default class BaseScene {
     public options: SceneOptions = {};
 
     public id: GameState;
+    public loaded: Boolean = false;
+
     private _cacheScene: Boolean = false;
-    private _loaded: Boolean = false;
 
     constructor(id: GameState, engine: Engine, options: SceneOptions = {}, cacheScene: Boolean = false) {
         this.id = id;
@@ -44,9 +45,9 @@ export default class BaseScene {
 
     public async enable(loadNext: Function | null = null) {
         this.makeScene();
-        if (!this._cacheScene || !this._loaded) {
+        if (!this._cacheScene || !this.loaded) {
             await this.init()
-            this._loaded = true;
+            this.loaded = true;
         }
 
         if (!loadNext) {

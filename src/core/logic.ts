@@ -21,6 +21,15 @@ class GameLogic {
         Events.on("npc:leave", () => this.npc = null)
     }
 
+    public reset() {
+        this.npc = null;
+        QuestItemTypeArray.forEach(nr => {
+            this.inventory.set(QuestItemType[nr], 0);
+        });
+        this.inventory.set(QuestItemType.MONEY, 1000);
+        this.quest = new Quest([], []);
+    }
+
     public get money() {
         return this.inventory.get(QuestItemType.MONEY) || 0
     }

@@ -1,4 +1,4 @@
-import { MeshBuilder, Mesh, Scene, Vector3, StandardMaterial, Texture } from "@babylonjs/core";
+import { MeshBuilder, Sprite, Scene, Vector3, StandardMaterial, Texture } from "@babylonjs/core";
 import { NPCRole, NPCRoleArray, QuestStatus, npcRoleToString } from "./core/enums";
 import { AdvancedDynamicTexture, TextBlock, Image } from "@babylonjs/gui";
 import Chance from 'chance';
@@ -8,6 +8,7 @@ import { Events } from "./core/events";
 import Quest from "./quest";
 import { Logic } from "./core/logic";
 import QuestLog from "./quest-log";
+import ASSETS from './core/assets'
 
 const chance = new Chance();
 const NPC_MIN_GEN_TIME = 10;
@@ -17,14 +18,13 @@ export default class NPCManager {
 
     private _npcInQueue: Array<NPC> = [];
     private _npcInProgress: Array<NPC> = [];
-    private _npcMeshes: Array<Mesh> = [];
+    private _npcMeshes: Array<Sprite> = [];
 
     private _maxQueueSize = 10;
 
     private _questLog;
 
     private _ui;
-    private _scene;
 
     private _lastGen: number = NPC_GEN_TIME_START;
 
@@ -39,7 +39,6 @@ export default class NPCManager {
 
         Events.on("quest:assign", () => {
             if (this._npcInQueue.length > 0) {
-                const npc = this.activeNPC;
                 if (this._tryAssignQuest(Logic.quest)) {
                     Events.emit("npc:quest", true)
                 } else {
@@ -53,6 +52,10 @@ export default class NPCManager {
 
         Events.on("npc:arrive", () => {
             this._ui.getControlByName("NPCStats").isVisible = true;
+            if (this._npcInQueue.length === 1) {
+                const avatar = this._ui.getControlByName("NPCImage") as Image
+                avatar.source = "icons/" + this.activeNPC.head;
+            }
         })
         Events.on("npc:leave", () => {
             if (this._npcInQueue.length > 0) {
@@ -68,9 +71,26 @@ export default class NPCManager {
                     this.updateAll();
                 }
             }
-            this._ui.getControlByName("NPCStats").isVisible = this._npcInQueue.length !== 0;
-        })
 
+            this._ui.getControlByName("NPCStats").isVisible = this._npcInQueue.length !== 0;
+            if (this._npcInQueue.length > 0) {
+                const avatar = this._ui.getControlByName("NPCImage") as Image
+                avatar.source = "icons/" + this.activeNPC.head;
+            }
+        })
+    }
+
+    public reset() {
+        this._npcInQueue = [];
+        this._npcInProgress = [];
+        this._npcMeshes.forEach(m => m.dispose());
+        this._npcMeshes = [];
+        this._lastGen = NPC_GEN_TIME_START;
+        this._questLog.reset();
+
+        if (this._ui) {
+            this._ui.getControlByName("NPCStats").isVisible = false;
+        }
     }
 
     private get activeNPC() {
@@ -84,7 +104,6 @@ export default class NPCManager {
     }
 
     public start(scene: Scene) {
-        this._scene = scene;
         scene.registerBeforeRender(() => {
             if (IngameTime.getTime() - this._lastGen >= NPC_MIN_GEN_TIME) {
                 if (this._npcInQueue.length < this._maxQueueSize) {
@@ -105,19 +124,11 @@ export default class NPCManager {
             1
         );
 
-        this._npcInQueue.push(npc);
-        const plane = MeshBuilder.CreatePlane(
-            npc.id,
-            { width: 1, height: 1 },
-            this._scene
-        );
-        const mat = new StandardMaterial("");
-        mat.diffuseTexture = new Texture(npc.head);
-        plane.billboardMode = Mesh.BILLBOARDMODE_ALL;
-        plane.position.y += this._npcInQueue.length * 1.5;
-        plane.material = mat;
+        const sprite = ASSETS.getSprite("icons", npc.head) as Sprite
+        sprite.position.y += (this._npcInQueue.length+1) * 1.5;
 
-        this._npcMeshes.push(plane)
+        this._npcInQueue.push(npc);
+        this._npcMeshes.push(sprite)
 
         if (this._ui) {
             this.updateAll();
@@ -149,12 +160,6 @@ export default class NPCManager {
             this.updateAll();
             q.start();
             Events.emit("inventory:remove", q.rewards[0]);
-
-            if (this._npcInQueue.length > 0) {
-                const avatar = this._ui.getControlByName("NPCImage") as Image
-                avatar.source = this.activeNPC.head;
-            }
-
             return true
         }
 
@@ -207,11 +212,6 @@ export default class NPCManager {
 
             const role = this._ui.getControlByName("NPCRole") as TextBlock
             role.text = "Class: " + npcRoleToString(this._npcInQueue[0].role);
-
-            if (this._npcInQueue.length === 1) {
-                const avatar = this._ui.getControlByName("NPCImage") as Image
-                avatar.source = this.activeNPC.head;
-            }
         }
     }
 
