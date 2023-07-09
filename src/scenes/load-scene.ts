@@ -1,7 +1,8 @@
-import { Engine, SceneOptions, Color4, FreeCamera, Vector3, Tools } from "@babylonjs/core";
-import { AdvancedDynamicTexture, TextBlock } from "@babylonjs/gui";
+import { Engine, SceneOptions, Color4, FreeCamera, Vector3 } from "@babylonjs/core";
+import { AdvancedDynamicTexture, Button } from "@babylonjs/gui";
 import BaseScene from "../core/base-scene";
 import { GameState } from "../core/enums";
+import { Events } from "../core/events";
 
 export default class LoadScene extends BaseScene {
 
@@ -16,14 +17,15 @@ export default class LoadScene extends BaseScene {
         camera.setTarget(Vector3.Zero());
         this.scene.clearColor = new Color4(0, 0, 0, 1);
 
-        //--GUI--
-        const cutScene = AdvancedDynamicTexture.CreateFullscreenUI("load");
+        const ui = AdvancedDynamicTexture.CreateFullscreenUI("load");
 
-        //--PROGRESS DIALOGUE--
-        const loading = new TextBlock();
-        loading.color = "white";
-        loading.fontSize = "32px";
-        loading.text = "loading";
-        cutScene.addControl(loading)
+        const button = Button.CreateSimpleButton("start", "GO")
+        button.fontSize = "60px";
+        button.color = "white";
+        button.width = "200px"
+        button.height = "200px"
+        button.onPointerClickObservable.add(() => Events.emit("scene:switch", GameState.GAME))
+
+        ui.addControl(button);
     }
 }

@@ -96,7 +96,6 @@ export default class App {
                     load = async () => await gameScene.load()
                 }
                 await newScene?.enable(load);
-                this.goToScene(GameState.GAME);
                 break;
             case GameState.GAME:
                 // await Tools.DelayAsync(1000)

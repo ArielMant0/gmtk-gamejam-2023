@@ -29,12 +29,8 @@ export default class QuestBuilder {
     }
 
     public reset() {
-        this._dialogPhase = DialogPhase.NONE;
         if (this._gui) {
-            const dialog = this._gui.getControlByName("DialogWindow") as Rectangle;
-            dialog.isVisible = false;
-            const qb = this._gui.getControlByName("QuestBuilder") as Rectangle;
-            qb.isVisible = false;
+            this._hideAllDialogs();
         }
         this.resetQuest();
     }
@@ -123,10 +119,21 @@ export default class QuestBuilder {
             }
         })
 
+        const dialogDismiss = gui.getControlByName("DialogDismiss") as Button
+        dialogDismiss.onPointerClickObservable.add(() => {
+            SM.playSound("click");
+            if (this._dialogPhase === DialogPhase.START) {
+                this._hideAllDialogs();
+                Events.emit("npc:dismiss")
+                SM.playSound("quest:reject");
+            }
+        });
+
         const buttonDialog = gui.getControlByName("DialogButton") as Button
         buttonDialog.onPointerClickObservable.add(() => {
             SM.playSound("click");
             if (this._dialogPhase === DialogPhase.START) {
+                this._dialogPhase = DialogPhase.NONE;
                 this._showQuestBuilder()
             } else if (this._dialogPhase === DialogPhase.END) {
                 Events.emit("npc:leave")
@@ -170,16 +177,15 @@ export default class QuestBuilder {
 
             const buttonDialog = this._gui.getControlByName("DialogButton") as Button
             // @ts-ignore
-            buttonDialog.textBlock?.text = "Continue"
+            buttonDialog.textBlock?.text = "continue"
+
+            const dialogDismiss = this._gui.getControlByName("DialogDismiss") as Button
+            dialogDismiss.isVisible = true;
 
             dialog.isVisible = true;
             this._dialogPhase = DialogPhase.START;
         } else {
-            const dialog = this._gui.getControlByName("DialogWindow") as Rectangle;
-            dialog.isVisible = false;
-            const qb = this._gui.getControlByName("QuestBuilder") as Rectangle;
-            qb.isVisible = false;
-            this._dialogPhase = DialogPhase.NONE;
+            this._hideAllDialogs()
         }
     }
 
@@ -194,12 +200,9 @@ export default class QuestBuilder {
             const qb = this._gui.getControlByName("QuestBuilder") as Rectangle;
             qb.isVisible = true;
             this._dialogPhase = DialogPhase.QUEST;
+
         } else {
-            const dialog = this._gui.getControlByName("DialogWindow") as Rectangle;
-            dialog.isVisible = false;
-            const qb = this._gui.getControlByName("QuestBuilder") as Rectangle;
-            qb.isVisible = false;
-            this._dialogPhase = DialogPhase.NONE;
+            this._hideAllDialogs()
         }
     }
 
@@ -218,18 +221,24 @@ export default class QuestBuilder {
 
             const buttonDialog = this._gui.getControlByName("DialogButton") as Button
             // @ts-ignore
-            buttonDialog.textBlock?.text = "End"
+            buttonDialog.textBlock?.text = "end"
+
+            const dialogDismiss = this._gui.getControlByName("DialogDismiss") as Button
+            dialogDismiss.isVisible = false;
 
             dialog.isVisible = true;
             this._dialogPhase = DialogPhase.END;
         } else {
-            const dialog = this._gui.getControlByName("DialogWindow") as Rectangle;
-            dialog.isVisible = false;
-            const qb = this._gui.getControlByName("QuestBuilder") as Rectangle;
-            qb.isVisible = false;
-            this._dialogPhase = DialogPhase.NONE;
+            this._hideAllDialogs()
         }
     }
 
+    private _hideAllDialogs() {
+        const dialog = this._gui.getControlByName("DialogWindow") as Rectangle;
+        dialog.isVisible = false;
+        const qb = this._gui.getControlByName("QuestBuilder") as Rectangle;
+        qb.isVisible = false;
+        this._dialogPhase = DialogPhase.NONE;
+    }
 
 }

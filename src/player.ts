@@ -21,6 +21,7 @@ export class Player {
 
     public async load() {
         this.sprite = ASSETS.getSprite("icons", "troll.png", "player")
+        this.sprite.width = 1.25;
         this.sprite.height = 2;
         this.reset();
     }

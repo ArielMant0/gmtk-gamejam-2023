@@ -5,9 +5,9 @@ import QuestItem from "../quest-item";
 import { QuestItemType, QuestItemTypeArray } from "./enums";
 import { Events } from "./events";
 
-const PLAYER_POS = [4,-3]
-const PATH_POINTS_TO = [[-6, 2], [-3.5, -1], [-1, -2], [2, -2], [3, -3]];
-const PATH_POINTS_FROM = [[3, -3], [2, -2], [-1, -2], [-3.5, -2], [-5, -5], [-6, -8]];
+const PLAYER_POS = [4,-2.75]
+const PATH_POINTS_TO = [[-6, 2], [-3.5, -1], [-1, -2], [2, -2], [2.75, -3]];
+const PATH_POINTS_FROM = [[2.75, -3], [2, -2], [-1, -2], [-3.5, -2], [-5, -5], [-6, -8]];
 
 class GameLogic {
 
@@ -28,6 +28,7 @@ class GameLogic {
 
         Events.on("npc:arrive", (npc: NPC) => this.npc = npc)
         Events.on("npc:leave", () => this.npc = null)
+        Events.on("npc:dismiss", () => this.npc = null)
 
         // create path towards player
         this.pathToPlayer = new Path3D(PATH_POINTS_TO.map(d => new Vector3(d[0], d[1], 0)))

@@ -14,7 +14,8 @@ import { Notifier } from "./notify";
 
 const chance = new Chance();
 const NPC_MIN_GEN_TIME = 10;
-const NPC_GEN_TIME_START = -9;
+const NPC_MIN_GEN_TIME_DIALOG = 25;
+const NPC_GEN_TIME_START = -8;
 
 const NPC_SPEED = 0.003;
 
@@ -60,11 +61,24 @@ export default class NPCManager {
 
         Events.on("npc:arrive", () => {
             this._ui.getControlByName("NPCStats").isVisible = true;
-            if (this._npcInQueue.length === 1) {
+            if (this._npcInQueue.length >= 1) {
                 const avatar = this._ui.getControlByName("NPCImage") as Image
                 avatar.source = "assets/icons/" + this.activeNPC.head;
             }
-        })
+        });
+
+        Events.on("npc:dismiss", () => {
+            this._startNPCLeave(0);
+            this.updateAll();
+            this._updateNPCTargetPositions();
+
+            this._ui.getControlByName("NPCStats").isVisible = this._npcInQueue.length !== 0;
+            if (this._npcInQueue.length > 0) {
+                const avatar = this._ui.getControlByName("NPCImage") as Image
+                avatar.source = "assets/icons/" + this.activeNPC.head;
+            }
+        });
+
         Events.on("npc:leave", () => {
 
             if (this._npcInQueue.length > 0) {
@@ -118,7 +132,9 @@ export default class NPCManager {
 
     public start(scene: Scene) {
         scene.registerBeforeRender(() => {
-            if (IngameTime.getTime() - this._lastGen >= NPC_MIN_GEN_TIME) {
+
+            const time = this._npcInQueue.length >= 1 ? NPC_MIN_GEN_TIME_DIALOG : NPC_MIN_GEN_TIME;
+            if (IngameTime.getTime() - this._lastGen >= time) {
                 if (this._npcInQueue.length < this._maxQueueSize) {
                     this._makeNPC();
                 } else {
