@@ -10,6 +10,7 @@ import { Logic } from "./core/logic";
 import QuestLog from "./quest-log";
 import ASSETS from './core/assets'
 import SM from './core/sound-manager'
+import { Notifier } from "./notify";
 
 const chance = new Chance();
 const NPC_MIN_GEN_TIME = 5;
@@ -65,10 +66,12 @@ export default class NPCManager {
 
                 if (npc.acceptedQuest) {
                     SM.playSound("quest:accept")
+                    Notifier.success("Your quest was accepted")
                     this._assignQuest(Logic.quest)
                     this._addToQuestLog(npc.id);
                 } else {
                     SM.playSound("quest:reject")
+                    Notifier.failure("Your quest was rejected")
                     this._npcInQueue.shift();
                     const mesh = this._npcMeshes.shift();
                     mesh?.dispose();
@@ -175,10 +178,12 @@ export default class NPCManager {
     private _onQuestFinish(id: string, result: QuestStatus) {
         const index = this._npcInProgress.findIndex(d => d.id === id)
         if (index >= 0) {
+            const npc = this._npcInProgress[index]
             if (result === QuestStatus.SUCCESS) {
                 console.log("quest SUCCESS")
+                Notifier.success(`${npc.name} was successful on their quest. Your received ${npc.quest?.items[0].toString()}`)
             } else {
-                console.log("quest FAILURE")
+                Notifier.failure(`${npc.name} failed their quest. It hurt a little...`)
             }
             // remove this NPC
             this._npcInProgress.splice(index, 1);

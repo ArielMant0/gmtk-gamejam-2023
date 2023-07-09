@@ -5,6 +5,7 @@ import { NPCB } from "./core/npc-balancing";
 import { Chance } from "chance";
 import { randomNPCHeadIcon } from "./core/assets";
 import { Vector3 } from "@babylonjs/core";
+import { Notifier } from "./notify";
 
 const chance = new Chance();
 
@@ -52,10 +53,8 @@ export default class NPC {
 
         if (this.acceptedQuest) {
             this.quest = quest;
-            console.debug("quest accepted")
             return true;
         } else {
-            console.debug("quest rejected")
             return false;
         }
 

@@ -6,6 +6,7 @@ import { Logic } from "./core/logic";
 import PlayerGoal from "./player-goal";
 import { AdvancedDynamicTexture, TextBlock, Rectangle, Button, Image } from "@babylonjs/gui";
 import SM from './core/sound-manager'
+import { Notifier } from "./notify";
 
 const TARGET_NUM_GOALS = 3;
 const MIN_GENERATION_WAIT_TIME = 5;
@@ -76,6 +77,7 @@ export default class GoalManager {
             this._goals.splice(index, 1)
             this.updateGUI();
             SM.playSound("goal:dismiss")
+            Notifier.info("Goal has been dismissed...", { duration: 2 });
         }
     }
 
@@ -126,7 +128,13 @@ export default class GoalManager {
                 time.text = goal.deadline === null ? "Time Left: unlimited" : `Time Left: ${goal.timeLeftInDays} d ${goal.timeLeftInHours} h`
 
                 const collect =  this._ui.getControlByName("GoalCollect"+index) as Button
+                const prev = collect.isEnabled;
                 collect.isEnabled = goal.status === QuestStatus.SUCCESS;
+
+                if (!prev && collect.isEnabled) {
+                    Notifier.info("You can collect the rewards for a goal", { duration: 2 });
+                }
+
             } else {
                 const rect = this._ui.getControlByName("Goal"+index) as Rectangle
                 rect.isVisible = false;

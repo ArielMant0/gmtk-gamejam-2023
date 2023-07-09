@@ -1,5 +1,5 @@
 import { Scene } from "@babylonjs/core";
-import { AdvancedDynamicTexture, Control, TextBlock, Rectangle } from "@babylonjs/gui";
+import { AdvancedDynamicTexture, Control, TextBlock, Rectangle, Image } from "@babylonjs/gui";
 import { IngameTime } from "./core/game-time";
 import { Events } from "./core/events";
 
@@ -13,12 +13,10 @@ interface Notification {
 }
 
 interface NotificationOptions {
-    icon?: string;
     duration?: number;
 }
 
 interface NotificationOptionsComplete {
-    icon: string;
     duration: number;
 }
 
@@ -29,8 +27,7 @@ enum NotificationType {
 }
 
 const DEFAULT_OPTIONS: NotificationOptionsComplete = {
-    icon: "",
-    duration: 3,
+    duration: 5,
 };
 
 const REMOVE_DELAY = 50;
@@ -51,7 +48,7 @@ class NotificationManager {
         Events.on("gametime:update", (time: number) => {
             const remove: Array<number> = [];
             this._alerts.forEach((alert: Notification) => {
-                if (alert.end >= time) {
+                if (time >= alert.end) {
                     remove.push(alert.id)
                 }
             });
@@ -59,12 +56,22 @@ class NotificationManager {
         })
     }
 
+    public get ready() {
+        return this._scene !== undefined && this._ui !== undefined;
+    }
+
     public init(scene: Scene, ui: AdvancedDynamicTexture) {
         this._scene = scene;
         this._ui = ui;
 
-        this._parent = this._ui.getControlByName("Notification0");
-        this._template = this._ui.getControlByName("NotificationBox");
+        this._parent = this._ui.getControlByName("NotificationBox");
+        this._template = this._ui.getControlByName("Notification0");
+    }
+
+    public reset() {
+        this._alerts.forEach((alert: Notification) => alert.node.dispose())
+        this._alerts = [];
+        this._COUNT = 1;
     }
 
     public info(message: string, options: NotificationOptions = {}) {
@@ -99,6 +106,7 @@ class NotificationManager {
 
     private _add(id: number, message: string, options: NotificationOptionsComplete, node: any) {
         const start = IngameTime.getTime();
+        console.log(start, options.duration, start + options.duration)
         this._alerts.push({
             id: id,
             start: start,
@@ -124,26 +132,37 @@ class NotificationManager {
         const node = this._template.clone() as Rectangle;
         node.name = "Notification" + id;
 
-        switch(type) {
-            case NotificationType.SUCCESS:
-                node.background = "#00ff00ff";
-                break;
-            case NotificationType.FAILURE:
-                node.background = "#ff0000ff";
-                break;
-            default:
-                node.background = "#0000ffff";
-        }
-
         const descendants = node.getDescendants(false, (control: Control) => {
             return control.getClassName() === "TextBlock" || control.getClassName() === "Image";
         });
 
+        const icon = descendants.find((d: Control) => d.name === "NotificationIcon") as Image
+
+        switch(type) {
+            case NotificationType.SUCCESS:
+                node.background = "#26B40A99";
+                icon.source = "assets/icons/thumb-up.png";
+                break;
+            case NotificationType.FAILURE:
+                node.background = "#E4341F99";
+                icon.source = "assets/icons/thumb-down.png";
+                break;
+            default:
+                node.background = "#14647599";
+                icon.source = "assets/icons/info.png";
+        }
+
         // set message
-        const text = descendants.find((d: Control) => d.name === "NotificationMessage") as TextBlock
+        const text = descendants.find((d: Control) => d.name === "NotificationText") as TextBlock
         text.text = message;
+        text.color = "white";
+
+
+        node.isVisible = true;
 
         this._parent.addControl(node);
+
+        return node;
     }
 }
 

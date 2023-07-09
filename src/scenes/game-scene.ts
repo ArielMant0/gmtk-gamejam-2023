@@ -13,6 +13,7 @@ import GoalManager from "../goal-manager";
 import { Logic } from "../core/logic";
 import ASSETS from '../core/assets'
 import SM from '../core/sound-manager'
+import { Notifier } from "../notify";
 
 export default class GameScene extends BaseScene {
 
@@ -92,9 +93,6 @@ export default class GameScene extends BaseScene {
 
         IngameTime.start(this.scene);
         this._npcFactory.start(this.scene);
-
-        //primitive character and setting
-        await this._initializeGameAsync();
     }
 
     public async load(force=false) {
@@ -110,11 +108,16 @@ export default class GameScene extends BaseScene {
         }
 
         this._ui = AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
         // dont detect any inputs from this ui while the game is loading
         this.scene.detachControl();
 
         // TODO: keep scale to size ??
         await this._ui.parseFromURLAsync("assets/gui/gui_game.json", false)
+
+        if (!Notifier.ready) {
+            Notifier.init(this.scene, this._ui);
+        }
 
         this._bg = new Layer("bg", "assets/art/bg.jpg", this.scene, true);
 
@@ -145,19 +148,12 @@ export default class GameScene extends BaseScene {
     public reset() {
         Logic.reset();
         IngameTime.reset();
+        Notifier.reset();
 
         if (this._player) this._player.reset();
         if (this._questBuiler) this._questBuiler.reset();
         if (this._inventory) this._inventory.reset();
         if (this._goalManager) this._goalManager.reset();
         if (this._npcFactory) this._npcFactory.reset();
-    }
-
-    private async _initializeGameAsync() {
-        const light0 = new HemisphericLight("HemiLight", new Vector3(0, 1, 0), this.scene);
-        // const light = new PointLight("sparklight", new Vector3(0, 1, 0), this.scene);
-        // light.diffuse = new Color3(0.08627450980392157, 0.10980392156862745, 0.15294117647058825);
-        // light.intensity = 35;
-        // light.radius = 1;
     }
 }
