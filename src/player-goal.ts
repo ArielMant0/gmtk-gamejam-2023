@@ -1,6 +1,7 @@
 import { QuestItemType, QuestItemTypeArray, QuestStatus } from "./core/enums";
 import { GameTime, IngameTime } from "./core/game-time";
 import { Logic } from "./core/logic";
+import { NPCB } from "./core/npc-balancing";
 import QuestItem from "./quest-item";
 import { Chance } from "chance";
 
@@ -43,11 +44,21 @@ export default class PlayerGoal {
 
         const items = chance.pickset(QuestItemTypeArray.filter(d => d !== "MONEY"), numItems)
             .map(d => new QuestItem(QuestItemType[d], chance.integer({ min: 1, max: 5 })))
-        const rewards = [new QuestItem(QuestItemType.MONEY, chance.integer({ min: items.length*25, max: items.length*100 }))]
 
+        // TODO check if okay
         let deadline: number | null = null;
-        if (chance.bool({ likelihood: 66 })) {
-            deadline = IngameTime.getTime() + chance.integer({ min: 1*24, max: 3*24 });
+        const rewards = [new QuestItem(QuestItemType.MONEY, 0)]
+
+        if (items[0].item) {
+            if (chance.bool({ likelihood: 66 })) {
+                deadline = IngameTime.getTime() +
+                NPCB.getItemTime(items[0].item, items[0].amount);
+            }
+
+            rewards[0] = new QuestItem(
+                QuestItemType.MONEY,
+                NPCB.getItemWorth(items[0].item, items[0].amount)
+            )
         }
 
         return new PlayerGoal(items, rewards, deadline)

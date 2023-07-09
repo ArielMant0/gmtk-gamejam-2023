@@ -1,10 +1,10 @@
-item_type,base_probability,quantity_per_day,quantity_step,min_gold_compensation
-WEAPON,95,1,5,100
-HUNTING_TROPHY,80,5,10,500
+item_type,base_probability,time_per_quantity_d,quantity_step,min_gold_compensation
 MESSAGE,100,2,1,50
-MUSHROOM,10,2,10,25
-GEM,60,2,2,300
+WEAPON,95,1,5,100
+HUNTING_TROPHY,80,4,10,350
 APPLE,40,2,10,25
+MUSHROOM,10,3,10,20
+GEM,60,2,2,300
 MEAT,50,2,3,75
 FUR,20,4,1,100
 HORSE,30,3,1,200

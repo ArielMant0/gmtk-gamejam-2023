@@ -1,0 +1,10 @@
+item_type,level,mean_worth,max_worth,mean_time_per_quantity_h,mean_time_per_quantity_d,mean_quantity_step
+MESSAGE,1,45,50,72,3,1
+WEAPON,2,88,100,48,2,5
+HUNTING_TROPHY,3,300,400,120,5,10
+APPLE,1,23,25,40,2,10
+MUSHROOM,2,30,40,48,2,10
+GEM,3,263,300,80,3,2
+MEAT,1,60,75,48,2,3
+FUR,2,94,100,88,4,1
+HORSE,3,188,200,72,3,1
