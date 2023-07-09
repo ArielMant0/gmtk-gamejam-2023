@@ -106,7 +106,6 @@ class NotificationManager {
 
     private _add(id: number, message: string, options: NotificationOptionsComplete, node: any) {
         const start = IngameTime.getTime();
-        console.log(start, options.duration, start + options.duration)
         this._alerts.push({
             id: id,
             start: start,

@@ -11,7 +11,7 @@ class GameTime {
     public day: number = 0;
     public hour: number = 0;
 
-    constructor(hInMS=1000) {
+    constructor(hInMS=750) {
         this._hInMS = hInMS;
     }
 

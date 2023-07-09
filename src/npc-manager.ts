@@ -14,7 +14,7 @@ import { Notifier } from "./notify";
 
 const chance = new Chance();
 const NPC_MIN_GEN_TIME = 10;
-const NPC_GEN_TIME_START = -7;
+const NPC_GEN_TIME_START = -9;
 
 const NPC_SPEED = 0.003;
 
