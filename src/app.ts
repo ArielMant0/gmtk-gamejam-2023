@@ -5,6 +5,7 @@ import { Engine, Tools } from "@babylonjs/core";
 import { GameState } from "./core/enums";
 import BaseScene from "./core/base-scene";
 import { Events } from "./core/events";
+import SM from './core/sound-manager'
 
 export default class App {
 
@@ -88,6 +89,7 @@ export default class App {
 
         switch (state) {
             case GameState.LOAD:
+                SM.setMusicVolume(0.1, true)
                 const gameScene = this._scenes.get(GameState.GAME);
                 let load: any = null;
                 if (gameScene) {
@@ -98,9 +100,11 @@ export default class App {
                 break;
             case GameState.GAME:
                 // await Tools.DelayAsync(1000)
+                SM.setMusicVolume(0.2, true)
                 await newScene?.enable();
                 break;
             default:
+                SM.setMusicVolume(0.1, true)
                 await newScene?.enable();
         }
 

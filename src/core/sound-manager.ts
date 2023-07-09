@@ -2,16 +2,18 @@ import { Scene, Sound, SoundTrack } from "@babylonjs/core";
 
 class SoundManager {
 
-    private _bgTack;
-    private _mainTack;
+    private _bgTrack;
+    private _bgVolume = 0.2;
+    private _mainTrack;
+    private _mainVolume = 0.4;
 
     private _scene;
 
     constructor() {}
 
     public get size() {
-        return (this._bgTack ? this._bgTack.soundCollection.length : 0) +
-            (this._mainTack ? this._mainTack.soundCollection.length : 0);
+        return (this._bgTrack ? this._bgTrack.soundCollection.length : 0) +
+            (this._mainTrack ? this._mainTrack.soundCollection.length : 0);
     }
 
     public get ready() {
@@ -23,14 +25,14 @@ class SoundManager {
     }
 
     public hasMusic(id: string) {
-        return this._bgTack && this._bgTack.soundCollection.find((d: Sound) => d.name === id) !== undefined
+        return this._bgTrack && this._bgTrack.soundCollection.find((d: Sound) => d.name === id) !== undefined
     }
 
     public async loadMusic(id: string, url: string, play: boolean = false) {
         if (!this._scene) return;
 
-        if (!this._bgTack) {
-            this._bgTack = new SoundTrack(this._scene, { volume: 0.2 });
+        if (!this._bgTrack) {
+            this._bgTrack = new SoundTrack(this._scene, { volume: 0.2 });
         }
 
         return new Promise((resolve, reject) => {
@@ -45,22 +47,44 @@ class SoundManager {
                 },
                 { loop: true, autoplay: play }
             )
-            this._bgTack.addSound(music);
+            this._bgTrack.addSound(music);
         });
     }
 
+    public setMusicVolume(volume: number, slow: boolean = false) {
+        if (!this._scene || !this._bgTrack) return;
+
+        if (slow) {
+            this._setMusicVolumeTransition(this._bgVolume, volume, Math.abs(this._bgVolume-volume) * 0.1)
+        } else {
+            this._bgTrack.setVolume(volume);
+            this._bgVolume = volume;
+        }
+    }
+
+    private _setMusicVolumeTransition(volume: number, goal: number, increment: number) {
+        if (volume >= goal) {
+            return
+        }
+
+        this._bgTrack.setVolume(volume);
+        this._bgVolume = volume;
+
+        setTimeout(() => this._setMusicVolumeTransition(volume + increment, goal, increment), 10)
+    }
+
     public hasSound(id: string) {
-        return this._mainTack && this._mainTack.soundCollection.find((d: Sound) => d.name === id) !== undefined
+        return this._mainTrack && this._mainTrack.soundCollection.find((d: Sound) => d.name === id) !== undefined
     }
 
     public async loadSound(id: string, url: string) {
         if (!this._scene) return;
 
-        if (!this._mainTack) {
-            this._mainTack = new SoundTrack(this._scene, { volume: 0.4 });
+        if (!this._mainTrack) {
+            this._mainTrack = new SoundTrack(this._scene, { volume: 0.4 });
         }
         const sound = new Sound(id, url, this._scene);
-        this._mainTack.addSound(sound);
+        this._mainTrack.addSound(sound);
 
         return new Promise((resolve, reject) => {
             const sound = new Sound(
@@ -73,8 +97,13 @@ class SoundManager {
                     }
                 }
             )
-            this._mainTack.addSound(sound);
+            this._mainTrack.addSound(sound);
         })
+    }
+
+    public setSoundVolume(volume: number) {
+        if (!this._scene || !this._mainTrack) return;
+        this._mainTrack.setVolume(volume);
     }
 
     public play(id: string, which?: string) {
@@ -86,9 +115,9 @@ class SoundManager {
     }
 
     public playMusic(id: string) {
-        const music = this._bgTack.soundCollection.find((d: Sound) => d.name === id);
+        const music = this._bgTrack.soundCollection.find((d: Sound) => d.name === id);
         if (music) {
-            const current = this._bgTack.soundCollection.find((d: Sound) => d.isPlaying);
+            const current = this._bgTrack.soundCollection.find((d: Sound) => d.isPlaying);
             if (current) {
                 if (current.name === id) return;
                 current.stop();
@@ -98,7 +127,7 @@ class SoundManager {
     }
 
     public playSound(id: string) {
-        const sound = this._mainTack.soundCollection.find((d: Sound) => d.name === id);
+        const sound = this._mainTrack.soundCollection.find((d: Sound) => d.name === id);
         if (sound) {
             sound.play();
         }
