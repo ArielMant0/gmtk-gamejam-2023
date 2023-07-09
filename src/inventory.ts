@@ -54,19 +54,7 @@ export default class Inventory {
 
     public addGUI(gui: AdvancedDynamicTexture) {
 
-        const rect = new Rectangle();
-        rect.width = 0.95;
-        rect.height = "100px";
-        rect.top = "-25px";
-        rect.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
-        rect.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
-
-        const stack = new StackPanel();
-        stack.isVertical = false;
-        stack.width = 1;
-        stack.adaptHeightToChildren = true;
-        stack.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
-        stack.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        const parent = gui.getControlByName("InventoryItemParent") as StackPanel;
 
         QuestItemTypeArray.forEach(nr => {
             const item = QuestItemType[nr]
@@ -92,45 +80,20 @@ export default class Inventory {
 
             const amount = Logic.getItemAmount(item);
             const t = new TextBlock(name+"text", ""+amount);
-            t.color = "white";
+            t.color = "black";
             t.fontSize = "12px";
             t.height = "24px";
             t.paddingTopInPixels = 5;
             this._ui.set(item, t);
             r.addControl(t);
 
-            stack.addControl(r);
+            parent.addControl(r);
         })
 
-        const mStack = new StackPanel("MoneyContainer")
-        mStack.isVertical = true;
-        // mStack.top = "-25px"
-        mStack.background = "black"
-        mStack.adaptWidthToChildren = true;
-        mStack.adaptHeightToChildren = true;
-        mStack.paddingRightInPixels = 15;
-        mStack.paddingBottomInPixels = 15;
-        mStack.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
-        mStack.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
-        mStack.zIndex = 1;
+        this._money = gui.getControlByName("MoneyText") as TextBlock;
+        this._money.text = "" + Logic.money + " " + questItemTypeToString(QuestItemType.MONEY, Logic.money);
 
-        const mImage = new Image("MoneyIcon", questItemTypeIcon(QuestItemType.MONEY));
-        mImage.width = "128px";
-        mImage.height = "128px";
-        mImage.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
-        mImage.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
-        mStack.addControl(mImage)
-
-        this._money = new TextBlock("MoneyText", "" + Logic.money + " " + questItemTypeToString(QuestItemType.MONEY, Logic.money))
-        this._money.color = "white";
-        this._money.fontSize = "24px";
-        this._money.height = "40px";
-        this._money.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
-        this._money.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
-        mStack.addControl(this._money)
-
-        rect.addControl(stack);
-        gui.addControl(rect);
-        gui.addControl(mStack)
+        const coins = gui.getControlByName("MoneyIcon") as Image;
+        coins.source = "assets/icons/coins.png"
     }
 }

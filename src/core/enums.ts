@@ -24,7 +24,7 @@ const QuestItemTypeArray = Object.values(QuestItemType).filter(d => typeof d ===
 function questItemTypeToString(item: QuestItemType | null, amount: number = 1) {
     switch(item) {
         case QuestItemType.MONEY:
-            return "Gold";
+            return amount > 1 ? "Coins" : "Coin";
         case QuestItemType.MUSHROOM:
             return amount > 1 ? "Mushrooms" : "Mushroom"
         case QuestItemType.APPLE:
