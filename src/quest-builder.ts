@@ -120,7 +120,6 @@ export default class QuestBuilder {
                     questItem: this.questItem,
                     rewardItem: this.rewardItem,
                 })
-                this.reset();
             }
         })
 
@@ -129,6 +128,7 @@ export default class QuestBuilder {
             if (this._dialogPhase === DialogPhase.START) {
                 this._showQuestBuilder()
             } else if (this._dialogPhase === DialogPhase.END) {
+                Events.emit("npc:leave")
                 this._showStartDialog();
             }
         });
@@ -167,15 +167,25 @@ export default class QuestBuilder {
             text.textWrapping = true;
             text.text = "Hello, I am an Adventurer! Do you have a quest for me?";
 
+            const buttonDialog = this._gui.getControlByName("DialogButton") as Button
+            // @ts-ignore
+            buttonDialog.textBlock?.text = "Continue"
+
             dialog.isVisible = true;
             this._dialogPhase = DialogPhase.START;
         } else {
+            const dialog = this._gui.getControlByName("DialogWindow") as Rectangle;
+            dialog.isVisible = false;
+            const qb = this._gui.getControlByName("QuestBuilder") as Rectangle;
+            qb.isVisible = false;
             this._dialogPhase = DialogPhase.NONE;
         }
     }
 
     private _showQuestBuilder() {
         if (Logic.npc !== null) {
+
+            this.reset();
 
             const dialog = this._gui.getControlByName("DialogWindow") as Rectangle;
             dialog.isVisible = false;
@@ -184,6 +194,10 @@ export default class QuestBuilder {
             qb.isVisible = true;
             this._dialogPhase = DialogPhase.QUEST;
         } else {
+            const dialog = this._gui.getControlByName("DialogWindow") as Rectangle;
+            dialog.isVisible = false;
+            const qb = this._gui.getControlByName("QuestBuilder") as Rectangle;
+            qb.isVisible = false;
             this._dialogPhase = DialogPhase.NONE;
         }
     }
@@ -201,9 +215,17 @@ export default class QuestBuilder {
             const text = this._gui.getControlByName("DialogText") as TextBlock
             text.text = accepted ? "Sure, I think I can manage that. See you soon!" : "No way. Bye."
 
+            const buttonDialog = this._gui.getControlByName("DialogButton") as Button
+            // @ts-ignore
+            buttonDialog.textBlock?.text = "End"
+
             dialog.isVisible = true;
             this._dialogPhase = DialogPhase.END;
         } else {
+            const dialog = this._gui.getControlByName("DialogWindow") as Rectangle;
+            dialog.isVisible = false;
+            const qb = this._gui.getControlByName("QuestBuilder") as Rectangle;
+            qb.isVisible = false;
             this._dialogPhase = DialogPhase.NONE;
         }
     }

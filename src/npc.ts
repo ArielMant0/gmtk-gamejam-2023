@@ -17,8 +17,11 @@ export default class NPC {
     public head: string;
 
     public quest: Quest | null = null;
-    public acceptProb: number = 1;
-    public successProb: number = 1;
+
+    public acceptProb: number = 0;
+    public successProb: number = 0;
+
+    public acceptedQuest: boolean = false;
 
     constructor(name: string, role: NPCRole, level: number) {
         this.id = uuid();
@@ -26,17 +29,26 @@ export default class NPC {
         this.role = role;
         this.level = Math.max(1, Math.round(level));
         this.head = randomNPCHeadIcon();
-
     }
 
     public get questTimeLeft() {
         return this.quest === null ? Number.MAX_SAFE_INTEGER : this.quest.timeLeft;
     }
 
-    public assignQuest(quest: Quest) {
-        // calculate probabilites
+    public wouldAcceptQuest(quest: Quest) {
         this.recalculate(quest);
-        if (chance.bool({ likelihood: this.acceptProb })) {
+        this.acceptedQuest = chance.bool({ likelihood: this.acceptProb })
+        return this.acceptedQuest;
+    }
+
+    public assignQuest(quest: Quest, calculate=false) {
+        // calculate probabilites
+        if (calculate) {
+            this.recalculate(quest);
+            this.acceptedQuest = chance.bool({ likelihood: this.acceptProb })
+        }
+
+        if (this.acceptedQuest) {
             this.quest = quest;
             console.log("quest accepted")
             return true;
@@ -44,6 +56,7 @@ export default class NPC {
             console.log("quest rejected")
             return false;
         }
+
     }
 
     public tryCompleteQuest() {

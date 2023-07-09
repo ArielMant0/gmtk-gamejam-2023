@@ -40,13 +40,12 @@ export default class NPCManager {
         Events.on("quest:assign", () => {
             if (this._npcInQueue.length > 0) {
                 const npc = this.activeNPC;
-                if (this.assignQuest(Logic.quest)) {
-                    this._addToQuestLog(npc.id);
+                if (this._tryAssignQuest(Logic.quest)) {
                     Events.emit("npc:quest", true)
                 } else {
                     Events.emit("npc:quest", false)
                 }
-                setTimeout(() => Events.emit("npc:leave", npc), 500);
+                this._ui.getControlByName("NPCStats").isVisible = false;
             }
         });
 
@@ -56,9 +55,20 @@ export default class NPCManager {
             this._ui.getControlByName("NPCStats").isVisible = true;
         })
         Events.on("npc:leave", () => {
-            if (this._npcInQueue.length === 0) {
-                this._ui.getControlByName("NPCStats").isVisible = false;
+            if (this._npcInQueue.length > 0) {
+                const npc = this.activeNPC;
+
+                if (npc.acceptedQuest) {
+                    this._assignQuest(Logic.quest)
+                    this._addToQuestLog(npc.id);
+                } else {
+                    this._npcInQueue.shift();
+                    const mesh = this._npcMeshes.shift();
+                    mesh?.dispose();
+                    this.updateAll();
+                }
             }
+            this._ui.getControlByName("NPCStats").isVisible = this._npcInQueue.length !== 0;
         })
 
     }
@@ -116,37 +126,39 @@ export default class NPCManager {
         this._lastGen = IngameTime.getTime();
     }
 
-    public assignQuest(quest: Quest) {
+    private _tryAssignQuest(quest: Quest) {
 
-        let result = false;
+        if (this._npcInQueue.length > 0) {
+            const npc = this._npcInQueue[0];
+            return npc.wouldAcceptQuest(quest);
+        }
+
+        return false;
+    }
+
+    private _assignQuest(quest: Quest) {
 
         if (this._npcInQueue.length > 0) {
             const npc = this._npcInQueue[0];
             const q = quest.clone();
-            if (npc.assignQuest(q)) {
-                this._npcInQueue.shift();
-                this._npcInProgress.push(npc);
-                const mesh = this._npcMeshes.shift();
-                mesh?.dispose();
-                this.updateAll();
-                q.start();
-                Events.emit("inventory:remove", q.rewards[0]);
-                result = true;
-            } else {
-                this._npcInQueue.shift();
-                const mesh = this._npcMeshes.shift();
-                mesh?.dispose();
-                this.updateAll();
-                result = false;
-            }
+            npc.assignQuest(q)
+            this._npcInQueue.shift();
+            this._npcInProgress.push(npc);
+            const mesh = this._npcMeshes.shift();
+            mesh?.dispose();
+            this.updateAll();
+            q.start();
+            Events.emit("inventory:remove", q.rewards[0]);
 
             if (this._npcInQueue.length > 0) {
                 const avatar = this._ui.getControlByName("NPCImage") as Image
                 avatar.source = this.activeNPC.head;
             }
+
+            return true
         }
 
-        return result;
+        return false;
     }
 
     private _onQuestFinish(id: string, result: QuestStatus) {
