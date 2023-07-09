@@ -1,7 +1,6 @@
 import { Engine, SceneOptions, Color4, FreeCamera, Vector3 } from "@babylonjs/core";
-import { AdvancedDynamicTexture, Button, TextBlock } from "@babylonjs/gui";
+import { AdvancedDynamicTexture, TextBlock } from "@babylonjs/gui";
 import BaseScene from "../core/base-scene";
-import { Events } from "../core/events";
 import { GameState } from "../core/enums";
 
 export default class WinScene extends BaseScene {
@@ -32,17 +31,5 @@ export default class WinScene extends BaseScene {
         youWon.color = "green";
         youWon.fontSize = "64px";
         guiMenu.addControl(youWon);
-
-        const mainBtn = Button.CreateSimpleButton("mainmenu", "GO TO MAIN MENU");
-        mainBtn.width = 0.2;
-        mainBtn.height = "40px";
-        mainBtn.color = "white";
-        mainBtn.top = "100px";
-        guiMenu.addControl(mainBtn);
-        // this handles interactions with the start button attached to the scene
-        mainBtn.onPointerUpObservable.add(() => {
-            Events.emit("scene:switch", GameState.START)
-            this.scene?.detachControl(); //observables disabled
-        });
     }
 }

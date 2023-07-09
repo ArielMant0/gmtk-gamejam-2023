@@ -14,7 +14,7 @@ export default class App {
     private _scenes: Map<GameState, BaseScene> = new Map();
 
     // Scene - related
-    private _state: GameState = GameState.START;
+    private _state: GameState = GameState.LOAD;
 
     constructor() {
         this.canvas = this._createCanvas();
@@ -57,7 +57,7 @@ export default class App {
 
     public async start(): Promise<void> {
         // Register a render loop to repeatedly render the scene
-        this.goToScene(GameState.START);
+        this.goToScene(GameState.LOAD);
 
         // TODO: ugly
         this.engine.runRenderLoop(() => {

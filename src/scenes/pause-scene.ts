@@ -59,14 +59,6 @@ export default class PauseScene extends BaseScene {
         settingsBtn.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
         guiMenu.addControl(settingsBtn);
 
-        const menuBtn = Button.CreateSimpleButton("menu", "EXIT TO MAIN MENU");
-        menuBtn.width = 0.2
-        menuBtn.top = "80px"
-        menuBtn.height = "40px";
-        menuBtn.color = "white";
-        menuBtn.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
-        guiMenu.addControl(menuBtn);
-
         // this handles interactions with the start button attached to the scene
         startBtn.onPointerDownObservable.add(() => {
             if (this.scene) {
@@ -77,12 +69,6 @@ export default class PauseScene extends BaseScene {
         resetBtn.onPointerDownObservable.add(() => {
             if (this.scene) {
                 Events.emit("scene:switch", GameState.LOAD);
-                this.scene.detachControl(); //observables disabled
-            }
-        });
-        menuBtn.onPointerDownObservable.add(() => {
-            if (this.scene) {
-                Events.emit("scene:switch", GameState.START);
                 this.scene.detachControl(); //observables disabled
             }
         });

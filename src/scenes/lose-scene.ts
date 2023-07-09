@@ -32,17 +32,5 @@ export default class LoseScene extends BaseScene {
         youLost.color = "red";
         youLost.fontSize = "64px";
         guiMenu.addControl(youLost);
-
-        const mainBtn = Button.CreateSimpleButton("mainmenu", "GO TO MAIN MENU");
-        mainBtn.width = 0.2;
-        mainBtn.height = "40px";
-        mainBtn.color = "white";
-        mainBtn.top = "100px";
-        guiMenu.addControl(mainBtn);
-        // this handles interactions with the start button attached to the scene
-        mainBtn.onPointerUpObservable.add(() => {
-            Events.emit("scene:switch", GameState.START)
-            this.scene?.detachControl(); //observables disabled
-        });
     }
 }
