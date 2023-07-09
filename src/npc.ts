@@ -4,7 +4,7 @@ import Quest from "./quest";
 import { NPCB } from "./core/npc-balancing";
 import { Chance } from "chance";
 import { randomNPCHeadIcon } from "./core/assets";
-import { Vector3 } from "@babylonjs/core";
+import { Path3D, Vector3 } from "@babylonjs/core";
 import { Notifier } from "./notify";
 
 const chance = new Chance();
@@ -24,7 +24,9 @@ export default class NPC {
     public successProb: number = 0;
 
     public acceptedQuest: boolean = false;
-    public targetPos: Vector3 | null = null;
+
+    public travelProgess: number = 0;
+    public travelPath: Path3D | null = null;
 
     constructor(name: string, role: NPCRole, level: number) {
         this.id = uuid();
@@ -57,7 +59,6 @@ export default class NPC {
         } else {
             return false;
         }
-
     }
 
     public tryCompleteQuest() {

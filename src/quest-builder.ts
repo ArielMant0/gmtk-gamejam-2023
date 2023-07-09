@@ -121,14 +121,10 @@ export default class QuestBuilder {
         });
 
         const buttonR = gui.getControlByName("RewardItem") as Button
-        // buttonR.adaptWidthToChildren = true;
+        buttonR.isReadOnly = true;
         if (buttonR.textBlock?.text) {
             buttonR.textBlock.text = this.rewardItem.toItemString();
         }
-        buttonR.onPointerDownObservable.add(() => {
-            this._selectItem = 2
-            SM.playSound("click");
-        });
 
         const okay = gui.getControlByName("Confirm") as Button
         okay.onPointerClickObservable.add(() => {

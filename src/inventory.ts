@@ -4,6 +4,7 @@ import { Events } from "./core/events";
 import { Logic } from "./core/logic";
 import PlayerGoal from "./player-goal";
 import QuestItem from "./quest-item";
+import SM from './core/sound-manager';
 
 export default class Inventory {
 
@@ -75,7 +76,10 @@ export default class Inventory {
             b.width = "64px";
             b.height = "64px";
             b.paddingLeftInPixels = 5;
-            b.onPointerClickObservable.add(() => Events.emit("questbuilder:add", item));
+            b.onPointerClickObservable.add(() => {
+                SM.play("click")
+                Events.emit("questbuilder:add", item)
+            });
             r.addControl(b);
 
             const amount = Logic.getItemAmount(item);

@@ -1,4 +1,4 @@
-import { MeshBuilder, Sprite, Scene, Vector3, StandardMaterial, Texture } from "@babylonjs/core";
+import { MeshBuilder, Sprite, Scene, Vector3, StandardMaterial, Texture, Path3D } from "@babylonjs/core";
 import { NPCRole, NPCRoleArray, QuestStatus, npcRoleToString } from "./core/enums";
 import { AdvancedDynamicTexture, TextBlock, Image } from "@babylonjs/gui";
 import Chance from 'chance';
@@ -20,9 +20,13 @@ export default class NPCManager {
 
     private _npcInQueue: Array<NPC> = [];
     private _npcInProgress: Array<NPC> = [];
+
     private _npcMeshes: Array<Sprite> = [];
 
-    private _maxQueueSize = 10;
+    private _npcLeaving: Array<NPC> = [];
+    private _npcLeavingMeshes: Array<Sprite> = [];
+
+    private _maxQueueSize = 6;
 
     private _questLog;
 
@@ -69,12 +73,11 @@ export default class NPCManager {
                     Notifier.success("Your quest was accepted")
                     this._assignQuest(Logic.quest)
                     this._addToQuestLog(npc.id);
+                    this._startNPCLeave(1);
                 } else {
                     SM.playSound("quest:reject")
                     Notifier.failure("Your quest was rejected")
-                    this._npcInQueue.shift();
-                    const mesh = this._npcMeshes.shift();
-                    mesh?.dispose();
+                    this._startNPCLeave(0);
                     this.updateAll();
                 }
                 this._updateNPCTargetPositions();
@@ -133,8 +136,8 @@ export default class NPCManager {
         );
 
         const sprite = ASSETS.getSprite("icons", npc.head) as Sprite
-        const distance = (this._npcInQueue.length + 1) * 1.5
-        npc.targetPos = Logic.PLAYER_POSITION.add(new Vector3(distance, 0, 0))
+        const index = this._npcInQueue.length;
+        npc.travelPath = Logic.pathToPlayer.slice(0, 1 - index * 0.1);
 
         this._npcInQueue.push(npc);
         this._npcMeshes.push(sprite)
@@ -164,8 +167,6 @@ export default class NPCManager {
             npc.assignQuest(q)
             this._npcInQueue.shift();
             this._npcInProgress.push(npc);
-            const mesh = this._npcMeshes.shift();
-            mesh?.dispose();
             this.updateAll();
             q.start();
             Events.emit("inventory:remove", q.rewards[0]);
@@ -180,13 +181,26 @@ export default class NPCManager {
         if (index >= 0) {
             const npc = this._npcInProgress[index]
             if (result === QuestStatus.SUCCESS) {
-                console.log("quest SUCCESS")
                 Notifier.success(`${npc.name} was successful on their quest. Your received ${npc.quest?.items[0].toString()}`)
             } else {
                 Notifier.failure(`${npc.name} failed their quest. It hurt a little...`)
             }
             // remove this NPC
             this._npcInProgress.splice(index, 1);
+        }
+    }
+
+    private _startNPCLeave(mode: number) {
+        const npc = mode === 0 ?
+            this._npcInQueue.shift() :
+            this._npcInProgress[this._npcInProgress.length-1];
+
+        if (npc) {
+            this._npcLeaving.push(npc);
+            this._npcLeavingMeshes.push(this._npcMeshes.shift() as Sprite);
+
+            npc.travelPath = new Path3D(Logic.pathFromPlayer.getPoints())
+            npc.travelProgess = 0;
         }
     }
 
@@ -200,15 +214,15 @@ export default class NPCManager {
     private _moveNPCs() {
         this._npcMeshes.forEach((sprite, index) => {
             const npc = this._npcInQueue[index];
-            if (npc.targetPos !== null) {
+            if (npc.travelPath !== null) {
                 // move to target position
-                sprite.position = Vector3.Lerp(sprite.position, npc.targetPos, 0.05);
-                const diff = sprite.position.subtract(npc.targetPos).length();
+                sprite.position = npc.travelPath.getPointAt(npc.travelProgess)
+                npc.travelProgess += 0.005;
 
                 // check difference to target position
-                if (diff < 0.001) {
+                if (npc.travelProgess >= 1) {
                     // npc has arrvied at target position - reset
-                    npc.targetPos = null;
+                    npc.travelPath = null;
                     if (index === 0 && !Logic.npc) {
                         Events.emit("npc:arrive", npc);
                         SM.playSound("npc:arrive")
@@ -216,18 +230,45 @@ export default class NPCManager {
                 }
             }
         });
+
+        const removeSprite: Array<number> = [];
+        const removeNPC: Array<number> = [];
+
+        this._npcLeavingMeshes.forEach((sprite, index) => {
+            const npc = this._npcLeaving[index];
+
+            if (npc.travelPath !== null) {
+                // move to target position
+                sprite.position = npc.travelPath.getPointAt(npc.travelProgess)
+                npc.travelProgess += 0.005;
+
+                // check difference to target position
+                if (npc.travelProgess >= 1) {
+                    // npc has arrvied at target position - reset
+                    npc.travelPath = null;
+                    removeSprite.push(index);
+                    if (!npc.acceptedQuest && !npc.quest) {
+                        removeNPC.push(index);
+                    }
+                }
+            }
+        });
+
+        removeSprite.forEach(index => this._npcLeavingMeshes[index].dispose());
+        this._npcLeavingMeshes = this._npcLeavingMeshes.filter((_, i: number) => !removeSprite.includes(i));
+        this._npcLeaving = this._npcLeaving.filter((_, i: number) => !removeNPC.includes(i));
     }
 
     private _updateNPCTargetPositions() {
         this._npcMeshes.forEach((sprite, index) => {
+
             const npc = this._npcInQueue[index];
+            const tPos = Logic.pathToPlayer.getPointAt(1 - index * 0.1);
 
-            const tPos = Logic.PLAYER_POSITION.add(new Vector3((index + 1) * 1.5, 0, 0))
-
-            if ((npc.targetPos !== null && npc.targetPos.subtract(tPos).length() > 0.001) ||
-                sprite.position.subtract(tPos).length() > 0.001
-            ) {
-                npc.targetPos = tPos;
+            if (sprite.position.subtract(tPos).length() > 0.001) {
+                const start = Logic.pathToPlayer.getClosestPositionTo(sprite.position);
+                npc.travelPath = Logic.pathToPlayer.slice(start, 1 - index * 0.1);
+                npc.travelProgess = 0;
             }
         });
     }
