@@ -83,7 +83,12 @@ class NPCBalancing {
             if (values) {
                 const base = values.base_probability / 100;
                 const quantity = itemQ.amount;
-                return Math.min(100, 100 * Math.pow(base, Math.ceil(quantity / values.quantity_step)));
+                const compensation = quest.rewards[0].amount;
+                return Math.min(
+                    100,
+                    100 * Math.pow(base, Math.ceil(quantity / values.quantity_step)) *
+                    Math.min(Math.max(compensation / (values.min_gold_compensation * itemQ.amount), 0.9), 2.0)
+                );
             }
         }
         return 0;
