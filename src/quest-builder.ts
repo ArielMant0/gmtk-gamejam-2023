@@ -97,7 +97,6 @@ export default class QuestBuilder {
         this._gui = gui;
 
         const amountQ = gui.getControlByName("QuestAmount") as InputText
-        amountQ.autoStretchWidth = true;
         amountQ.text = ""+this.questItem.amount;
         amountQ.onTextChangedObservable.add(() => {
             this.setQuestAmount(amountQ.text)
@@ -105,7 +104,7 @@ export default class QuestBuilder {
         });
 
         const buttonQ = gui.getControlByName("QuestItem") as Button
-        buttonQ.adaptWidthToChildren = true;
+        // buttonQ.adaptWidthToChildren = true;
         if (buttonQ.textBlock?.text) {
             buttonQ.textBlock.text = this.questItem.toItemString();
         }
@@ -115,7 +114,6 @@ export default class QuestBuilder {
         });
 
         const amountR = gui.getControlByName("RewardAmount") as InputText
-        amountR.autoStretchWidth = true;
         amountR.text = ""+this.rewardItem.amount;
         amountR.onTextChangedObservable.add(() => {
             this.setRewardAmount(amountR.text)
@@ -123,7 +121,7 @@ export default class QuestBuilder {
         });
 
         const buttonR = gui.getControlByName("RewardItem") as Button
-        buttonR.adaptWidthToChildren = true;
+        // buttonR.adaptWidthToChildren = true;
         if (buttonR.textBlock?.text) {
             buttonR.textBlock.text = this.rewardItem.toItemString();
         }
